@@ -9,13 +9,13 @@ function layout({ children }: { children: React.ReactNode }) {
     <SidebarProvider
       style={
         {
-          "--sidebar-width": "calc(var(--spacing) * 72)",
-          "--header-height": "calc(var(--spacing) * 12)",
+          "--sidebar-width": "calc(var(--spacing) * 40)",
+          "--header-height": "calc(var(--spacing) * 13.3)",
         } as React.CSSProperties
       }
     >
       <SuperAdminSidebar />
-      <main>
+      <main className='w-full'>
         <SiteHeader />
         {children}
       </main>

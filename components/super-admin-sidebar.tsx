@@ -1,42 +1,61 @@
 "use client"
-import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarHeader, SidebarMenu, SidebarMenuItem } from './ui/sidebar'
+import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from './ui/sidebar'
 import Link from 'next/link'
 import React from 'react'
 import { IconDashboard, IconSettings, IconPackage, IconShoppingCart, IconCreditCard } from '@tabler/icons-react'
+import { Separator } from './ui/separator'
+import { Moon } from 'lucide-react'
+import { usePathname } from 'next/navigation'
 
 function SuperAdminSidebar() {
+  const pathname = usePathname();
+
   const superAdminRoutes = [
-    { title: "Dashboard", href: "/dashboard", icon: <IconDashboard /> },
-    { title: "Stores", href: "/stores", icon: <IconPackage /> },
-    { title: "Products", href: "/products", icon: <IconPackage /> },
-    { title: "Orders", href: "/orders", icon: <IconShoppingCart /> },
-    { title: "Sales", href: "/sales", icon: <IconCreditCard /> },
-    { title: "Settings", href: "/dashboard", icon: <IconSettings /> },
+    { title: "Dashboard", url: "/super-admin/dashboard", icon: IconDashboard },
+    { title: "Stores", url: "/super-admin/stores", icon: IconPackage },
+    { title: "Products", url: "/super-admin/products", icon: IconPackage },
+    { title: "Orders", url: "/super-admin/orders", icon: IconShoppingCart },
+    { title: "Sales", url: "/super-admin/sales", icon: IconCreditCard },
+    { title: "Settings", url: "/super-admin/dashboard", icon: IconSettings },
   ]
   return (
-    <Sidebar>
+    <Sidebar collapsible='icon'>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <Link href="/super-admin">
-              Super Admin
-            </Link>
+            <SidebarMenuButton asChild>
+              <Link href="/super-admin">
+                <Moon />
+                <span className="font-semibold text-lg">Morganiz</span>
+              </Link>
+            </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
+      <Separator />
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {superAdminRoutes.map((route) => (
-                <SidebarMenuItem key={route.title}>
-                  <Link href={route.href}>
-                    {route.icon}
-                    {route.title}
-                  </Link>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
+							{superAdminRoutes.map((item) => {
+								const isActive = pathname === item.url;
+								const Icon = item.icon;
+
+								return (
+									<SidebarMenuItem key={item.title}>
+										<SidebarMenuButton
+											asChild
+											isActive={isActive}
+										>
+											<Link href={item.url}>
+												<Icon />
+												<span>{item.title}</span>
+											</Link>
+										</SidebarMenuButton>
+									</SidebarMenuItem>
+								);
+							})}
+						</SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
