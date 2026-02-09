@@ -1,6 +1,32 @@
+// import { SidebarProvider } from '@/components/ui/sidebar'
+// import React from 'react'
+// import AdminSidebar from '@/components/admin-sidebar'
+// import { SiteHeader } from '@/components/site-header'
+
+// function layout({ children }: { children: React.ReactNode }) {
+//   return (
+//     <SidebarProvider
+//       style={
+//         {
+//           "--sidebar-width": "calc(var(--spacing) * 72)",
+//           "--header-height": "calc(var(--spacing) * 12)",
+//         } as React.CSSProperties
+//       }
+//     >
+//       <AdminSidebar />
+//       <main>
+//         <SiteHeader />
+//         {children}
+//       </main>
+//     </SidebarProvider>
+//   )
+// }
+
+// export default layout
+
 "use client"
 
-import SuperAdminSidebar from "@/components/super-admin-sidebar"
+import { AdminSidebar } from "@/components/admin-sidebar"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -17,7 +43,7 @@ import {
 } from "@/components/ui/sidebar"
 import { usePathname } from "next/navigation"
 
-export default function SuperAdminLayout({
+export default function StoreAdminLayout({
   children,
 }: {
   children: React.ReactNode
@@ -36,7 +62,7 @@ export default function SuperAdminLayout({
 
   return (
     <SidebarProvider>
-      <SuperAdminSidebar />
+      <AdminSidebar />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 border-b px-4">
           <div className="flex items-center gap-2">
@@ -45,11 +71,11 @@ export default function SuperAdminLayout({
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="/super-admin">
-                    Super Admin
+                  <BreadcrumbLink href="/store-admin">
+                    Store Admin
                   </BreadcrumbLink>
                 </BreadcrumbItem>
-                {breadcrumbs.filter(b => b.href !== '/super-admin').map((breadcrumb) => (
+                {breadcrumbs.filter(b => b.href !== '/store-admin').map((breadcrumb, index) => (
                   <div key={breadcrumb.href} className="flex items-center gap-2">
                     <BreadcrumbSeparator className="hidden md:block" />
                     <BreadcrumbItem>
