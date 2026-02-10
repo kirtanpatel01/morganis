@@ -1,21 +1,32 @@
 "use client"
 
-import { useEffect, useState, useCallback } from "react"
+import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Plus, Search, RefreshCw } from "lucide-react"
-import { toast } from "sonner"
 
-import { StoresTable, CreateStoreModal, EditStoreModal, DeleteStoreDialog } from "./_stores/components"
-import { getStores, deleteStore, toggleStoreStatus } from "./_stores/actions"
-import type { Store, StoreFilters } from "./_stores/types"
+import { StoresTable, CreateStoreModal, EditStoreModal, DeleteStoreDialog, Pagination } from "./_stores/components"
+import { useStores } from "./_hooks/use-stores"
+import { useStoreFilters } from "./_hooks/use-store-filters"
+import { useStoreMutations } from "./_hooks/use-store-mutations"
+import type { Store } from "./_stores/types"
 
 export default function StoresPage() {
-    const [stores, setStores] = useState<Store[]>([])
-    const [loading, setLoading] = useState(true)
-    const [filters, setFilters] = useState<StoreFilters>({ search: "", status: "all" })
+    // Filter management
+    const { filters, debouncedFilters, setSearch, setStatus } = useStoreFilters()
+
+    // Data fetching with pagination
+    const { stores, loading, pagination, refetch } = useStores({
+        filters: debouncedFilters,
+        pageSize: 10,
+    })
+
+    // Mutations
+    const { deleteStore, toggleStatus } = useStoreMutations({
+        onSuccess: refetch,
+    })
 
     // Modal states
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
@@ -24,23 +35,7 @@ export default function StoresPage() {
     const [selectedStore, setSelectedStore] = useState<Store | null>(null)
     const [deleteLoading, setDeleteLoading] = useState(false)
 
-    const fetchStores = useCallback(async () => {
-        setLoading(true)
-        try {
-            const data = await getStores(filters)
-            setStores(data)
-        } catch (error) {
-            console.error("Failed to fetch stores:", error)
-            toast.error("Failed to load stores")
-        } finally {
-            setLoading(false)
-        }
-    }, [filters])
-
-    useEffect(() => {
-        fetchStores()
-    }, [fetchStores])
-
+    // Handlers
     const handleEdit = (store: Store) => {
         setSelectedStore(store)
         setIsEditModalOpen(true)
@@ -58,40 +53,16 @@ export default function StoresPage() {
         try {
             const result = await deleteStore(selectedStore.id)
             if (result.success) {
-                toast.success(result.message)
                 setIsDeleteDialogOpen(false)
                 setSelectedStore(null)
-                fetchStores()
-            } else {
-                toast.error(result.message)
             }
-        } catch (error) {
-            toast.error("Failed to delete store")
         } finally {
             setDeleteLoading(false)
         }
     }
 
     const handleToggleStatus = async (store: Store) => {
-        try {
-            const result = await toggleStoreStatus(store.id)
-            if (result.success) {
-                toast.success(result.message)
-                fetchStores()
-            } else {
-                toast.error(result.message)
-            }
-        } catch (error) {
-            toast.error("Failed to update store status")
-        }
-    }
-
-    const handleSearchChange = (value: string) => {
-        setFilters((prev) => ({ ...prev, search: value }))
-    }
-
-    const handleStatusFilterChange = (value: string) => {
-        setFilters((prev) => ({ ...prev, status: value as StoreFilters["status"] }))
+        await toggleStatus(store.id)
     }
 
     return (
@@ -113,11 +84,11 @@ export default function StoresPage() {
                                 placeholder="Search by name, ID, GSTIN, or email..."
                                 className="pl-9"
                                 value={filters.search}
-                                onChange={(e) => handleSearchChange(e.target.value)}
+                                onChange={(e) => setSearch(e.target.value)}
                             />
                         </div>
                         <div className="flex gap-2">
-                            <Select value={filters.status} onValueChange={handleStatusFilterChange}>
+                            <Select value={filters.status} onValueChange={setStatus}>
                                 <SelectTrigger className="w-[150px]">
                                     <SelectValue placeholder="Filter by status" />
                                 </SelectTrigger>
@@ -128,7 +99,7 @@ export default function StoresPage() {
                                     <SelectItem value="pending">Pending</SelectItem>
                                 </SelectContent>
                             </Select>
-                            <Button variant="outline" size="icon" onClick={fetchStores} disabled={loading}>
+                            <Button variant="outline" size="icon" onClick={refetch} disabled={loading}>
                                 <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
                             </Button>
                         </div>
@@ -140,18 +111,18 @@ export default function StoresPage() {
                             <div className="text-muted-foreground">Loading stores...</div>
                         </div>
                     ) : (
-                        <StoresTable
-                            stores={stores}
-                            onEdit={handleEdit}
-                            onDelete={handleDelete}
-                            onToggleStatus={handleToggleStatus}
-                        />
-                    )}
+                        <>
+                            <StoresTable
+                                stores={stores}
+                                onEdit={handleEdit}
+                                onDelete={handleDelete}
+                                onToggleStatus={handleToggleStatus}
+                            />
 
-                    {/* Store count */}
-                    <div className="text-sm text-muted-foreground">
-                        Total: {stores.length} store{stores.length !== 1 ? "s" : ""}
-                    </div>
+                            {/* Pagination */}
+                            <Pagination {...pagination} className="pt-4" />
+                        </>
+                    )}
                 </CardContent>
             </Card>
 
@@ -159,14 +130,14 @@ export default function StoresPage() {
             <CreateStoreModal
                 open={isCreateModalOpen}
                 onOpenChange={setIsCreateModalOpen}
-                onStoreCreated={fetchStores}
+                onStoreCreated={refetch}
             />
 
             <EditStoreModal
                 store={selectedStore}
                 open={isEditModalOpen}
                 onOpenChange={setIsEditModalOpen}
-                onStoreUpdated={fetchStores}
+                onStoreUpdated={refetch}
             />
 
             <DeleteStoreDialog
