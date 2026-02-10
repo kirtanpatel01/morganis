@@ -1,10 +1,15 @@
 "use client"
-import React from 'react'
-import SuperAdminSidebar from '@/components/super-admin-sidebar'
-import { SidebarProvider } from '@/components/ui/sidebar'
-import { SiteHeader } from '@/components/site-header'
 
-function layout({ children }: { children: React.ReactNode }) {
+import { SiteHeader } from "@/components/site-header"
+import SuperAdminSidebar from "@/components/super-admin-sidebar"
+import { SidebarProvider } from "@/components/ui/sidebar"
+
+export default function SuperAdminLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+
   return (
     <SidebarProvider
       style={
@@ -22,5 +27,3 @@ function layout({ children }: { children: React.ReactNode }) {
     </SidebarProvider>
   )
 }
-
-export default layout
