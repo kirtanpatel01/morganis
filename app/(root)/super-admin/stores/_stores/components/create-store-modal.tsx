@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
 import {
     Dialog,
     DialogContent,
@@ -9,12 +10,23 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog"
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from "@/components/ui/form"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { createStore } from "../actions"
-import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
+
+import { createStoreSchema, type CreateStoreInput } from "../schemas"
+import { useStoreMutations } from "../../_hooks/use-store-mutations"
+import { toast } from "sonner"
+
+
 
 interface CreateStoreModalProps {
     open: boolean
@@ -22,193 +34,184 @@ interface CreateStoreModalProps {
     onStoreCreated?: () => void
 }
 
-export function CreateStoreModal({ open, onOpenChange, onStoreCreated }: CreateStoreModalProps) {
-    const [loading, setLoading] = useState(false)
-    const [formData, setFormData] = useState({
-        name: "",
-        gstin: "",
-        address: "",
-        stateCode: "",
-        adminEmail: "",
-        adminPassword: "",
+export function CreateStoreModal({
+    open,
+    onOpenChange,
+    onStoreCreated,
+}: CreateStoreModalProps) {
+    const { createStore, isLoading } = useStoreMutations({
+        onSuccess: onStoreCreated,
     })
-    const [errors, setErrors] = useState<Record<string, string>>({})
 
-    const validateForm = () => {
-        const newErrors: Record<string, string> = {}
+    const form = useForm<CreateStoreInput>({
+        resolver: zodResolver(createStoreSchema),
+        shouldUnregister: true,
+        defaultValues: {
+            name: "",
+            gstin: "",
+            address: "",
+            stateCode: "",
+            adminEmail: "",
+            adminPassword: "",
+        },
+    })
 
-        if (!formData.name.trim()) {
-            newErrors.name = "Store name is required"
-        }
+    const onSubmit = async (data: CreateStoreInput) => {
+        const result = await createStore(data)
 
-        if (!formData.gstin.trim()) {
-            newErrors.gstin = "GSTIN is required"
-        } else if (formData.gstin.length !== 15) {
-            newErrors.gstin = "GSTIN must be exactly 15 characters"
-        }
-
-        if (!formData.address.trim()) {
-            newErrors.address = "Store address is required"
-        }
-
-        if (!formData.stateCode.trim()) {
-            newErrors.stateCode = "State code is required"
-        }
-
-        if (!formData.adminEmail.trim()) {
-            newErrors.adminEmail = "Admin email is required"
-        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.adminEmail)) {
-            newErrors.adminEmail = "Invalid email address"
-        }
-
-        if (!formData.adminPassword.trim()) {
-            newErrors.adminPassword = "Admin password is required"
-        } else if (formData.adminPassword.length < 8) {
-            newErrors.adminPassword = "Password must be at least 8 characters"
-        }
-
-        setErrors(newErrors)
-        return Object.keys(newErrors).length === 0
-    }
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
-
-        if (!validateForm()) {
-            return
-        }
-
-        setLoading(true)
-        try {
-            const result = await createStore(formData)
-            if (result.success) {
-                toast.success(result.message)
-                onOpenChange(false)
-                setFormData({
-                    name: "",
-                    gstin: "",
-                    address: "",
-                    stateCode: "",
-                    adminEmail: "",
-                    adminPassword: "",
-                })
-                setErrors({})
-                onStoreCreated?.()
-            } else {
-                toast.error(result.message)
-            }
-        } catch (error) {
-            toast.error("Failed to create store")
-        } finally {
-            setLoading(false)
+        if (result?.success) {
+            toast.success("Store has been created successfully")
+            form.reset()
+            onOpenChange(false)
+        } else {
+            toast.error(result?.message ?? "Failed to create store")
         }
     }
 
-    const handleChange = (field: string, value: string) => {
-        setFormData((prev) => ({ ...prev, [field]: value }))
-        if (errors[field]) {
-            setErrors((prev) => ({ ...prev, [field]: "" }))
+
+    const handleDialogChange = (nextOpen: boolean) => {
+        if (!nextOpen && !isLoading) {
+            form.reset()
         }
+        onOpenChange(nextOpen)
     }
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
+        <Dialog open={open} onOpenChange={handleDialogChange}>
             <DialogContent className="sm:max-w-[500px]">
                 <DialogHeader>
-                    <DialogTitle>Create New Store & Admin Account</DialogTitle>
+                    <DialogTitle>Create New Store & Admin</DialogTitle>
                     <DialogDescription>
-                        Enter the details to create a new store and admin account.
+                        Enter store details and admin credentials.
                     </DialogDescription>
                 </DialogHeader>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="name">Store Name *</Label>
-                            <Input
-                                id="name"
-                                placeholder="My Restaurant"
-                                value={formData.name}
-                                onChange={(e) => handleChange("name", e.target.value)}
-                                className={errors.name ? "border-red-500" : ""}
-                            />
-                            {errors.name && <p className="text-xs text-red-500">{errors.name}</p>}
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="gstin">GSTIN *</Label>
-                            <Input
-                                id="gstin"
-                                placeholder="22AAAAA0000A1Z5"
-                                maxLength={15}
-                                value={formData.gstin}
-                                onChange={(e) => handleChange("gstin", e.target.value.toUpperCase())}
-                                className={errors.gstin ? "border-red-500" : ""}
-                            />
-                            {errors.gstin && <p className="text-xs text-red-500">{errors.gstin}</p>}
-                        </div>
-                    </div>
 
-                    <div className="space-y-2">
-                        <Label htmlFor="address">Store Address *</Label>
-                        <Input
-                            id="address"
-                            placeholder="123 Main St, City"
-                            value={formData.address}
-                            onChange={(e) => handleChange("address", e.target.value)}
-                            className={errors.address ? "border-red-500" : ""}
+                <Form {...form}>
+                    <form
+                        onSubmit={form.handleSubmit(onSubmit)}
+                        className="space-y-4"
+                    >
+                        <div className="grid grid-cols-2 gap-4">
+                            <FormField
+                                control={form.control}
+                                name="name"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Store Name *</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="My Restaurant" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <FormField
+                                control={form.control}
+                                name="gstin"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>GSTIN *</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                placeholder="22AAAAA0000A1Z5"
+                                                maxLength={15}
+                                                {...field}
+                                                onChange={(e) =>
+                                                    field.onChange(e.target.value.toUpperCase())
+                                                }
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+
+                        <FormField
+                            control={form.control}
+                            name="address"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Store Address *</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="123 Main St" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
                         />
-                        {errors.address && <p className="text-xs text-red-500">{errors.address}</p>}
-                    </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="stateCode">State Code *</Label>
-                            <Input
-                                id="stateCode"
-                                placeholder="MH"
-                                maxLength={2}
-                                value={formData.stateCode}
-                                onChange={(e) => handleChange("stateCode", e.target.value.toUpperCase())}
-                                className={errors.stateCode ? "border-red-500" : ""}
+                        <div className="grid grid-cols-2 gap-4">
+                            <FormField
+                                control={form.control}
+                                name="stateCode"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>State Code *</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                placeholder="MH"
+                                                maxLength={2}
+                                                {...field}
+                                                onChange={(e) =>
+                                                    field.onChange(e.target.value.toUpperCase())
+                                                }
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
                             />
-                            {errors.stateCode && <p className="text-xs text-red-500">{errors.stateCode}</p>}
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="adminEmail">Admin Email *</Label>
-                            <Input
-                                id="adminEmail"
-                                type="email"
-                                placeholder="admin@store.com"
-                                value={formData.adminEmail}
-                                onChange={(e) => handleChange("adminEmail", e.target.value)}
-                                className={errors.adminEmail ? "border-red-500" : ""}
-                            />
-                            {errors.adminEmail && <p className="text-xs text-red-500">{errors.adminEmail}</p>}
-                        </div>
-                    </div>
 
-                    <div className="space-y-2">
-                        <Label htmlFor="adminPassword">Admin Password *</Label>
-                        <Input
-                            id="adminPassword"
-                            type="password"
-                            placeholder="Min. 8 characters"
-                            value={formData.adminPassword}
-                            onChange={(e) => handleChange("adminPassword", e.target.value)}
-                            className={errors.adminPassword ? "border-red-500" : ""}
+                            <FormField
+                                control={form.control}
+                                name="adminEmail"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Admin Email *</FormLabel>
+                                        <FormControl>
+                                            <Input type="email" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+
+                        <FormField
+                            control={form.control}
+                            name="adminPassword"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Admin Password *</FormLabel>
+                                    <FormControl>
+                                        <Input type="password" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
                         />
-                        {errors.adminPassword && <p className="text-xs text-red-500">{errors.adminPassword}</p>}
-                    </div>
 
-                    <DialogFooter>
-                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
-                            Cancel
-                        </Button>
-                        <Button type="submit" disabled={loading}>
-                            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            Create Store
-                        </Button>
-                    </DialogFooter>
-                </form>
+                        <DialogFooter>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                disabled={isLoading}
+                                onClick={() => handleDialogChange(false)}
+                            >
+                                Cancel
+                            </Button>
+
+                            <Button type="submit" disabled={isLoading} >
+                                {isLoading && (
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                )}
+                                Create Store
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </Form>
             </DialogContent>
         </Dialog>
     )
