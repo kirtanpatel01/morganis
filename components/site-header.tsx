@@ -1,6 +1,5 @@
 'use client'
 
-import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import {
@@ -13,7 +12,8 @@ import {
 } from "@/components/ui/breadcrumb";
 import { usePathname } from "next/navigation";
 import { ModeToggle } from "./mode-toggle"
-import { IconBell, IconUser } from "@tabler/icons-react"
+import { NotificationPopover } from "./notification-popover"
+import { UserDropdown } from "./user-dropdown"
 
 export function SiteHeader() {
   const pathname = usePathname() || "";
@@ -49,14 +49,8 @@ export function SiteHeader() {
         </Breadcrumb>
         <div className="ml-auto flex items-center gap-2">
           <ModeToggle />
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon">
-              <IconBell />
-            </Button>
-            <Button variant="ghost" size="icon">
-              <IconUser />
-            </Button>
-          </div>
+          <NotificationPopover />
+          <UserDropdown />
         </div>
       </div>
     </header>
