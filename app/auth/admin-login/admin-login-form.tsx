@@ -41,11 +41,6 @@ export default function AdminLoginForm() {
     },
   })
 
-  const role = useWatch({
-    control: form.control,
-    name: "role",
-  })
-
   const { isSubmitting } = form.formState
 
   async function onSubmit(data: FormData) {
@@ -137,19 +132,6 @@ export default function AdminLoginForm() {
           </Button>
         </form>
       </CardContent>
-      {role !== 'super-admin' && (
-        <CardFooter className="flex flex-col space-y-2">
-          <div className="text-sm text-center text-muted-foreground">
-            Don&apos;t have an account?{" "}
-            <Link
-              href="/auth/admin-signup"
-              className="text-primary underline-offset-4 hover:underline"
-            >
-              Sign up
-            </Link>
-          </div>
-        </CardFooter>
-      )}
     </Card>
   )
 }

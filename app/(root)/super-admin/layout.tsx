@@ -14,7 +14,7 @@ export default function SuperAdminLayout({
     <SidebarProvider
       style={
         {
-          "--sidebar-width": "calc(var(--spacing) * 40)",
+          "--sidebar-width": "calc(var(--spacing) * 56)",
           "--header-height": "calc(var(--spacing) * 13.3)",
         } as React.CSSProperties
       }

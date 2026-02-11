@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import {
     Table,
     TableBody,
@@ -42,15 +41,6 @@ export function StoresTable({ stores, onEdit, onDelete, onToggleStatus }: Stores
         }
     }
 
-    const formatDate = (dateString: string) => {
-        const date = new Date(dateString)
-        return date.toLocaleDateString("en-IN", {
-            day: "2-digit",
-            month: "short",
-            year: "numeric",
-        })
-    }
-
     if (stores.length === 0) {
         return (
             <div className="flex items-center justify-center h-64 border rounded-lg bg-muted/10">
@@ -64,30 +54,20 @@ export function StoresTable({ stores, onEdit, onDelete, onToggleStatus }: Stores
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead className="w-[200px]">Store ID</TableHead>
                         <TableHead>Name</TableHead>
                         <TableHead>GSTIN</TableHead>
                         <TableHead>State</TableHead>
-                        <TableHead>Admin Email</TableHead>
                         <TableHead>Status</TableHead>
-                        <TableHead>Created</TableHead>
                         <TableHead className="w-[70px]">Actions</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
                     {stores.map((store) => (
                         <TableRow key={store.id}>
-                            <TableCell className="font-mono text-sm text-muted-foreground">
-                                {store.storeId}
-                            </TableCell>
                             <TableCell className="font-medium">{store.name}</TableCell>
                             <TableCell className="font-mono text-sm">{store.gstin}</TableCell>
                             <TableCell>{store.stateCode}</TableCell>
-                            <TableCell className="text-sm">{store.adminEmail}</TableCell>
                             <TableCell>{getStatusBadge(store.status)}</TableCell>
-                            <TableCell className="text-sm text-muted-foreground">
-                                {formatDate(store.createdAt)}
-                            </TableCell>
                             <TableCell>
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>

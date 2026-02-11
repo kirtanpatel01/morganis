@@ -1,19 +1,23 @@
 // Re-export types from schemas for backward compatibility
-export type { CreateStoreInput, UpdateStoreInput, StoreFilters, ActionResult, PaginatedResponse } from "./schemas"
+export type { 
+  CreateStoreInput, 
+  UpdateStoreInput, 
+  StoreFilters, 
+  ActionResult, 
+  PaginatedResponse 
+} from "./schemas"
 
 // Core Store type (from database)
 export type StoreStatus = "active" | "inactive" | "pending"
 
 export interface Store {
   id: string
-  storeId: string
   name: string
   gstin: string
   address: string
   stateCode: string
   status: StoreStatus
-  createdAt: string
-  adminEmail: string
+  adminId: string
 }
 
 // Pagination types

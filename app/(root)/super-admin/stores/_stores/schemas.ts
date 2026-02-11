@@ -25,8 +25,8 @@ export const createStoreSchema = z.object({
   stateCode: z
     .string()
     .min(1, "State code is required")
-    .length(2, "State code must be exactly 2 characters")
-    .regex(/^[A-Z]{2}$/, "State code must be 2 uppercase letters"),
+    .length(2, "State code must be exactly 2 digits")
+    .regex(/^[0-9]{2}$/, "State code must be 2 digits"),
   
   adminEmail: z
     .string()
@@ -37,11 +37,16 @@ export const createStoreSchema = z.object({
   adminPassword: z
     .string()
     .min(1, "Admin password is required")
-    .min(8, "Password must be at least 8 characters")
-    .max(100, "Password must be less than 100 characters")
-    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-    .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-    .regex(/[0-9]/, "Password must contain at least one number"),
+    .min(6, "Password must be at least 6 characters")
+})
+.superRefine((data, ctx) => {
+  if (data.gstin.substring(0, 2) !== data.stateCode) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "GSTIN state code does not match selected state",
+      path: ["gstin"],
+    })
+  }
 })
 
 /**
@@ -70,8 +75,8 @@ export const updateStoreSchema = z.object({
   
   stateCode: z
     .string()
-    .length(2, "State code must be exactly 2 characters")
-    .regex(/^[A-Z]{2}$/, "State code must be 2 uppercase letters")
+    .length(2, "State code must be exactly 2 digits")
+    .regex(/^[0-9]{2}$/, "State code must be 2 digits")
     .optional(),
   
   status: z.enum(["active", "inactive", "pending"]).optional(),

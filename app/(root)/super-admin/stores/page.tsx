@@ -29,7 +29,6 @@ export default function StoresPage() {
     })
 
     // Modal states
-    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
     const [isEditModalOpen, setIsEditModalOpen] = useState(false)
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
     const [selectedStore, setSelectedStore] = useState<Store | null>(null)
@@ -70,10 +69,7 @@ export default function StoresPage() {
             <Card>
                 <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle>Store Management</CardTitle>
-                    <Button onClick={() => setIsCreateModalOpen(true)} className="gap-2">
-                        <Plus className="h-4 w-4" />
-                        Create Store
-                    </Button>
+                    <CreateStoreModal />
                 </CardHeader>
                 <CardContent className="space-y-4">
                     {/* Filters */}
@@ -125,13 +121,6 @@ export default function StoresPage() {
                     )}
                 </CardContent>
             </Card>
-
-            {/* Modals */}
-            <CreateStoreModal
-                open={isCreateModalOpen}
-                onOpenChange={setIsCreateModalOpen}
-                onStoreCreated={refetch}
-            />
 
             <EditStoreModal
                 store={selectedStore}
