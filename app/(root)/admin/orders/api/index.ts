@@ -59,7 +59,14 @@ export const fetchOrders = async (
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
 
-  return { data: filtered, total: filtered.length };
+  const page = filters.page || 1;
+  const limit = filters.limit || 10;
+  const startIndex = (page - 1) * limit;
+  const endIndex = startIndex + limit;
+
+  const paginatedData = filtered.slice(startIndex, endIndex);
+
+  return { data: paginatedData, total: filtered.length };
 };
 
 export const updateOrderStatus = async (

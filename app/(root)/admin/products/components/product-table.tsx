@@ -37,16 +37,26 @@ interface ProductTableProps {
 export function ProductTable({ onEdit }: ProductTableProps) {
     const [search, setSearch] = useState("");
     const [categoryFilter, setCategoryFilter] = useState("all");
+    const [page, setPage] = useState(1);
+    const [pageSize] = useState(10);
 
     const { data: productsData, isLoading } = useProducts({
         search,
-        category: categoryFilter === "all" ? undefined : categoryFilter
+        category: categoryFilter === "all" ? undefined : categoryFilter,
+        page,
+        limit: pageSize,
     });
     const { data: categories } = useCategories();
     const { mutate: deleteProduct } = useDeleteProduct();
 
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearch(e.target.value);
+        setPage(1);
+    }
+
+    const handleCategoryChange = (val: string) => {
+        setCategoryFilter(val);
+        setPage(1);
     }
 
     if (isLoading) return <div>Loading products...</div>;
@@ -64,7 +74,7 @@ export function ProductTable({ onEdit }: ProductTableProps) {
                             className="pl-8 w-[250px]"
                         />
                     </div>
-                    <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                    <Select value={categoryFilter} onValueChange={handleCategoryChange}>
                         <SelectTrigger className="w-[180px]">
                             <SelectValue placeholder="Category" />
                         </SelectTrigger>
@@ -138,6 +148,34 @@ export function ProductTable({ onEdit }: ProductTableProps) {
                         )}
                     </TableBody>
                 </Table>
+            </div>
+
+            {/* Pagination Controls */}
+            <div className="flex items-center justify-end space-x-2 py-4">
+                <div className="flex-1 text-sm text-muted-foreground">
+                    Showing {productsData?.data.length} of {productsData?.total} products
+                </div>
+                <div className="space-x-2">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setPage(p => Math.max(1, p - 1))}
+                        disabled={page === 1 || isLoading}
+                    >
+                        Previous
+                    </Button>
+                    <span className="text-sm font-medium">
+                        Page {page} of {Math.ceil((productsData?.total || 0) / pageSize)}
+                    </span>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setPage(p => p + 1)}
+                        disabled={!productsData || page >= Math.ceil(productsData.total / pageSize) || isLoading}
+                    >
+                        Next
+                    </Button>
+                </div>
             </div>
         </div>
     );

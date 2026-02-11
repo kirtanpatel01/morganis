@@ -23,15 +23,15 @@ let MOCK_PRODUCTS: Product[] = [
     createdAt: new Date().toISOString(),
   },
   {
-      id: "PROD-003",
-      name: "Cola",
-      description: "Refreshing soda",
-      price: 2.50,
-      stock: 200,
-      category: "Drinks",
-      status: "active",
-      createdAt: new Date().toISOString(),
-  }
+    id: "PROD-003",
+    name: "Cola",
+    description: "Refreshing soda",
+    price: 2.5,
+    stock: 200,
+    category: "Drinks",
+    status: "active",
+    createdAt: new Date().toISOString(),
+  },
 ];
 
 const MOCK_CATEGORIES: Category[] = [
@@ -40,20 +40,29 @@ const MOCK_CATEGORIES: Category[] = [
   { id: "CAT-003", name: "Drinks", slug: "drinks" },
 ];
 
-export const fetchProducts = async (filters?: ProductFilters): Promise<{ data: Product[], total: number }> => {
+export const fetchProducts = async (
+  filters?: ProductFilters,
+): Promise<{ data: Product[]; total: number }> => {
   await new Promise((resolve) => setTimeout(resolve, 500));
   let filtered = [...MOCK_PRODUCTS];
 
   if (filters?.search) {
     const search = filters.search.toLowerCase();
-    filtered = filtered.filter(p => p.name.toLowerCase().includes(search));
+    filtered = filtered.filter((p) => p.name.toLowerCase().includes(search));
   }
   if (filters?.category && filters.category !== "all") {
-    filtered = filtered.filter(p => p.category === filters.category);
+    filtered = filtered.filter((p) => p.category === filters.category);
   }
 
-  // Pagination logic can be added here
-  return { data: filtered, total: filtered.length };
+  // Pagination logic
+  const page = filters?.page || 1;
+  const limit = filters?.limit || 10;
+  const startIndex = (page - 1) * limit;
+  const endIndex = startIndex + limit;
+
+  const paginatedData = filtered.slice(startIndex, endIndex);
+
+  return { data: paginatedData, total: filtered.length };
 };
 
 export const fetchCategories = async (): Promise<Category[]> => {
@@ -61,7 +70,9 @@ export const fetchCategories = async (): Promise<Category[]> => {
   return MOCK_CATEGORIES;
 };
 
-export const createProduct = async (product: Omit<Product, "id" | "createdAt">): Promise<Product> => {
+export const createProduct = async (
+  product: Omit<Product, "id" | "createdAt">,
+): Promise<Product> => {
   await new Promise((resolve) => setTimeout(resolve, 800));
   const newProduct: Product = {
     ...product,
@@ -72,9 +83,12 @@ export const createProduct = async (product: Omit<Product, "id" | "createdAt">):
   return newProduct;
 };
 
-export const updateProduct = async (id: string, updates: Partial<Product>): Promise<Product> => {
+export const updateProduct = async (
+  id: string,
+  updates: Partial<Product>,
+): Promise<Product> => {
   await new Promise((resolve) => setTimeout(resolve, 800));
-  const index = MOCK_PRODUCTS.findIndex(p => p.id === id);
+  const index = MOCK_PRODUCTS.findIndex((p) => p.id === id);
   if (index === -1) throw new Error("Product not found");
   MOCK_PRODUCTS[index] = { ...MOCK_PRODUCTS[index], ...updates };
   return MOCK_PRODUCTS[index];
@@ -82,5 +96,5 @@ export const updateProduct = async (id: string, updates: Partial<Product>): Prom
 
 export const deleteProduct = async (id: string): Promise<void> => {
   await new Promise((resolve) => setTimeout(resolve, 500));
-  MOCK_PRODUCTS = MOCK_PRODUCTS.filter(p => p.id !== id);
+  MOCK_PRODUCTS = MOCK_PRODUCTS.filter((p) => p.id !== id);
 };

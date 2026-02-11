@@ -38,30 +38,39 @@ export function OrdersTable() {
     const [search, setSearch] = useState("");
     const [statusFilter, setStatusFilter] = useState<OrderStatus | "all">("all");
     const [paymentFilter, setPaymentFilter] = useState<PaymentMethod | "all">("all");
+    const [page, setPage] = useState(1);
+    const [pageSize] = useState(10);
 
     const { data: ordersData, isLoading } = useOrders({
         search,
         status: statusFilter,
-        paymentMethod: paymentFilter
+        paymentMethod: paymentFilter,
+        page,
+        limit: pageSize,
     });
     const { mutate: updateOrder } = useUpdateOrder();
+
+    // Reset pagination when filters change
+    const onSearchChange = (value: string) => {
+        setSearch(value);
+        setPage(1);
+    };
+
+    const onStatusFilterChange = (value: OrderStatus | "all") => {
+        setStatusFilter(value);
+        setPage(1);
+    };
+
+    const onPaymentFilterChange = (value: PaymentMethod | "all") => {
+        setPaymentFilter(value);
+        setPage(1);
+    };
 
     const handleStatusUpdate = (id: string, newStatus: OrderStatus) => {
         updateOrder({ id, status: newStatus }, {
             onSuccess: () => toast.success(`Order ${id} updated to ${newStatus}`),
             onError: () => toast.error("Failed to update order")
         });
-    }
-
-    const getStatusVariant = (status: OrderStatus) => {
-        switch (status) {
-            case 'pending': return 'secondary';
-            case 'accepted': return 'default'; // Blue-ish usually
-            case 'completed': return 'success'; // Need to define success variant or use default with color class
-            case 'paid_and_completed': return 'outline'; // Or green
-            case 'cancelled': return 'destructive';
-            default: return 'outline';
-        }
     }
 
     // Quick Fix for "success" variant not existing by default in Shadcn Badge
@@ -126,13 +135,13 @@ export function OrdersTable() {
                         <Input
                             placeholder="Search orders..."
                             value={search}
-                            onChange={(e) => setSearch(e.target.value)}
+                            onChange={(e) => onSearchChange(e.target.value)}
                             className="pl-8"
                         />
                     </div>
                 </div>
                 <div className="flex items-center space-x-2 w-full sm:w-auto">
-                    <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as OrderStatus | "all")}>
+                    <Select value={statusFilter} onValueChange={(v) => onStatusFilterChange(v as OrderStatus | "all")}>
                         <SelectTrigger className="w-[130px]">
                             <SelectValue placeholder="Status" />
                         </SelectTrigger>
@@ -145,7 +154,7 @@ export function OrdersTable() {
                             <SelectItem value="cancelled">Cancelled</SelectItem>
                         </SelectContent>
                     </Select>
-                    <Select value={paymentFilter} onValueChange={(v) => setPaymentFilter(v as PaymentMethod | "all")}>
+                    <Select value={paymentFilter} onValueChange={(v) => onPaymentFilterChange(v as PaymentMethod | "all")}>
                         <SelectTrigger className="w-[130px]">
                             <SelectValue placeholder="Payment" />
                         </SelectTrigger>
@@ -238,6 +247,34 @@ export function OrdersTable() {
                         )}
                     </TableBody>
                 </Table>
+            </div>
+
+            {/* Pagination Controls */}
+            <div className="flex items-center justify-end space-x-2 py-4">
+                <div className="flex-1 text-sm text-muted-foreground">
+                    Showing {ordersData?.data.length} of {ordersData?.total} orders
+                </div>
+                <div className="space-x-2">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setPage(p => Math.max(1, p - 1))}
+                        disabled={page === 1 || isLoading}
+                    >
+                        Previous
+                    </Button>
+                    <span className="text-sm font-medium">
+                        Page {page} of {Math.ceil((ordersData?.total || 0) / pageSize)}
+                    </span>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setPage(p => p + 1)}
+                        disabled={!ordersData || page >= Math.ceil(ordersData.total / pageSize) || isLoading}
+                    >
+                        Next
+                    </Button>
+                </div>
             </div>
             <OrderDetails
                 order={selectedOrder}

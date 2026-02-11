@@ -18,6 +18,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import { usePayments } from "../hooks/use-payments";
 import { PaymentMethod, PaymentStatus } from "../types";
@@ -27,11 +28,15 @@ export function PaymentHistory() {
     const [search, setSearch] = useState("");
     const [statusFilter, setStatusFilter] = useState<PaymentStatus | "all">("all");
     const [methodFilter, setMethodFilter] = useState<PaymentMethod | "all">("all");
+    const [page, setPage] = useState(1);
+    const [pageSize] = useState(10);
 
     const { data: paymentsData, isLoading } = usePayments({
         search,
         status: statusFilter,
-        method: methodFilter
+        method: methodFilter,
+        page,
+        limit: pageSize,
     });
 
     const getStatusVariant = (status: PaymentStatus) => {
@@ -66,13 +71,19 @@ export function PaymentHistory() {
                         <Input
                             placeholder="Search payments..."
                             value={search}
-                            onChange={(e) => setSearch(e.target.value)}
+                            onChange={(e) => {
+                                setSearch(e.target.value);
+                                setPage(1);
+                            }}
                             className="pl-8"
                         />
                     </div>
                 </div>
                 <div className="flex items-center space-x-2 w-full sm:w-auto">
-                    <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as PaymentStatus | "all")}>
+                    <Select value={statusFilter} onValueChange={(v) => {
+                        setStatusFilter(v as PaymentStatus | "all");
+                        setPage(1);
+                    }}>
                         <SelectTrigger className="w-[130px]">
                             <SelectValue placeholder="Status" />
                         </SelectTrigger>
@@ -84,7 +95,10 @@ export function PaymentHistory() {
                             <SelectItem value="refunded">Refunded</SelectItem>
                         </SelectContent>
                     </Select>
-                    <Select value={methodFilter} onValueChange={(v) => setMethodFilter(v as PaymentMethod | "all")}>
+                    <Select value={methodFilter} onValueChange={(v) => {
+                        setMethodFilter(v as PaymentMethod | "all");
+                        setPage(1);
+                    }}>
                         <SelectTrigger className="w-[130px]">
                             <SelectValue placeholder="Method" />
                         </SelectTrigger>
@@ -134,6 +148,34 @@ export function PaymentHistory() {
                         )}
                     </TableBody>
                 </Table>
+            </div>
+
+            {/* Pagination Controls */}
+            <div className="flex items-center justify-end space-x-2 py-4">
+                <div className="flex-1 text-sm text-muted-foreground">
+                    Showing {paymentsData?.data.length} of {paymentsData?.total} payments
+                </div>
+                <div className="space-x-2">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setPage(p => Math.max(1, p - 1))}
+                        disabled={page === 1 || isLoading}
+                    >
+                        Previous
+                    </Button>
+                    <span className="text-sm font-medium">
+                        Page {page} of {Math.ceil((paymentsData?.total || 0) / pageSize)}
+                    </span>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setPage(p => p + 1)}
+                        disabled={!paymentsData || page >= Math.ceil(paymentsData.total / pageSize) || isLoading}
+                    >
+                        Next
+                    </Button>
+                </div>
             </div>
         </div>
     );

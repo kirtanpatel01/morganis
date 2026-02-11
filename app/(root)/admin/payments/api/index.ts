@@ -60,7 +60,15 @@ export const fetchPayments = async (
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
 
-  return { data: filtered, total: filtered.length };
+  // Pagination logic
+  const page = filters.page || 1;
+  const limit = filters.limit || 10;
+  const startIndex = (page - 1) * limit;
+  const endIndex = startIndex + limit;
+
+  const paginatedData = filtered.slice(startIndex, endIndex);
+
+  return { data: paginatedData, total: filtered.length };
 };
 
 export const fetchPaymentStats = async (): Promise<PaymentStats> => {
