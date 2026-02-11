@@ -26,7 +26,7 @@ export default async function SuperAdminLayout({
       }
     >
       <SuperAdminSidebar />
-      <main className='w-full'>
+      <main className='w-full relative'>
         <SiteHeader user={user} />
         {children}
       </main>
