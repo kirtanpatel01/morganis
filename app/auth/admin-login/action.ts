@@ -20,7 +20,7 @@ export async function loginAdmin(data: LoginData) {
     return { error: "Invalid data format" }
   }
 
-  const { email, password, role } = result.data
+  const { email, password } = result.data
 
   const supabase = await createClient()
 
@@ -38,25 +38,25 @@ export async function loginAdmin(data: LoginData) {
     return { error: "Login failed. Please try again." }
   }
 
-  // 2. Verify Role
-  const { data: profile, error: profileError } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", authData.user.id)
-    .single()
+  const { data: user, error: userError } = await supabase.auth.getUser();
 
-  if (profileError || !profile) {
-    await supabase.auth.signOut()
-    return { error: "Error verifying profile." }
+  if (userError) {
+    console.error(userError)
+    return { error: userError.message }
   }
 
-  if (profile.role !== role) {
-    await supabase.auth.signOut()
-    return { error: `Unauthorized: You are not a ${role === 'super-admin' ? 'Super Admin' : 'Admin'}.` }
+  const userRole = user.user.user_metadata.role;
+
+  if (!userRole) {
+    return { error: "User role not found" }
   }
 
+  if(userRole !== data.role) {
+    return { error: "User role does not match" }
+  }
+  
   // Success - Redirect on server side
-  if (role === 'super-admin') {
+  if (userRole === 'super-admin') {
     redirect('/super-admin')
   } else {
     redirect('/admin')

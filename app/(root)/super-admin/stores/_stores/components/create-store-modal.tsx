@@ -4,11 +4,13 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import {
     Dialog,
+    DialogClose,
     DialogContent,
     DialogDescription,
     DialogFooter,
     DialogHeader,
     DialogTitle,
+    DialogTrigger,
 } from "@/components/ui/dialog"
 import {
     Form,
@@ -20,28 +22,81 @@ import {
 } from "@/components/ui/form"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Loader2 } from "lucide-react"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 
 import { createStoreSchema, type CreateStoreInput } from "../schemas"
-import { useStoreMutations } from "../../_hooks/use-store-mutations"
 import { toast } from "sonner"
+import { useState } from "react"
+import { Spinner } from "@/components/ui/spinner"
+import { Eye, EyeOff, Copy, Check } from "lucide-react"
 
+const INDIAN_STATES = [
+    { code: "01", name: "Jammu and Kashmir" },
+    { code: "02", name: "Himachal Pradesh" },
+    { code: "03", name: "Punjab" },
+    { code: "04", name: "Chandigarh" },
+    { code: "05", name: "Uttarakhand" },
+    { code: "06", name: "Haryana" },
+    { code: "07", name: "Delhi" },
+    { code: "08", name: "Rajasthan" },
+    { code: "09", name: "Uttar Pradesh" },
+    { code: "10", name: "Bihar" },
+    { code: "11", name: "Sikkim" },
+    { code: "12", name: "Arunachal Pradesh" },
+    { code: "13", name: "Nagaland" },
+    { code: "14", name: "Manipur" },
+    { code: "15", name: "Mizoram" },
+    { code: "16", name: "Tripura" },
+    { code: "17", name: "Meghalaya" },
+    { code: "18", name: "Assam" },
+    { code: "19", name: "West Bengal" },
+    { code: "20", name: "Jharkhand" },
+    { code: "21", name: "Odisha" },
+    { code: "22", name: "Chhattisgarh" },
+    { code: "23", name: "Madhya Pradesh" },
+    { code: "24", name: "Gujarat" },
+    { code: "26", name: "Dadra and Nagar Haveli and Daman and Diu" },
+    { code: "27", name: "Maharashtra" },
+    { code: "29", name: "Karnataka" },
+    { code: "30", name: "Goa" },
+    { code: "31", name: "Lakshadweep" },
+    { code: "32", name: "Kerala" },
+    { code: "33", name: "Tamil Nadu" },
+    { code: "34", name: "Puducherry" },
+    { code: "35", name: "Andaman and Nicobar Islands" },
+    { code: "36", name: "Telangana" },
+    { code: "37", name: "Andhra Pradesh" },
+    { code: "38", name: "Ladakh" },
+    { code: "97", name: "Other Territory" },
+]
+import { createStore } from "../actions"
 
+export function CreateStoreModal() {
+    const [open, setOpen] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [createdCredentials, setCreatedCredentials] = useState<CreateStoreInput | null>(null);
+    const [isCopied, setIsCopied] = useState(false);
 
-interface CreateStoreModalProps {
-    open: boolean
-    onOpenChange: (open: boolean) => void
-    onStoreCreated?: () => void
-}
+    const handleCopy = () => {
+        if (!createdCredentials) return;
+        const text = `Email: ${createdCredentials.adminEmail}\nPassword: ${createdCredentials.adminPassword}`;
+        navigator.clipboard.writeText(text);
+        setIsCopied(true);
+        toast.success("Credentials copied!");
+        setTimeout(() => setIsCopied(false), 2000);
+    };
 
-export function CreateStoreModal({
-    open,
-    onOpenChange,
-    onStoreCreated,
-}: CreateStoreModalProps) {
-    const { createStore, isLoading } = useStoreMutations({
-        onSuccess: onStoreCreated,
-    })
+    const handleClose = () => {
+        setOpen(false);
+        setCreatedCredentials(null);
+        form.reset();
+    };
 
     const form = useForm<CreateStoreInput>({
         resolver: zodResolver(createStoreSchema),
@@ -61,23 +116,21 @@ export function CreateStoreModal({
 
         if (result?.success) {
             toast.success("Store has been created successfully")
-            form.reset()
-            onOpenChange(false)
+            setCreatedCredentials(data)
+            // Do not close immediately, show credentials first
         } else {
             toast.error(result?.message ?? "Failed to create store")
         }
     }
 
-
-    const handleDialogChange = (nextOpen: boolean) => {
-        if (!nextOpen && !isLoading) {
-            form.reset()
-        }
-        onOpenChange(nextOpen)
-    }
-
     return (
-        <Dialog open={open} onOpenChange={handleDialogChange}>
+        <Dialog open={open} onOpenChange={(val) => {
+            if (!val) handleClose();
+            else setOpen(true);
+        }}>
+            <DialogTrigger asChild>
+                <Button>Create New Store</Button>
+            </DialogTrigger>
             <DialogContent className="sm:max-w-[500px]">
                 <DialogHeader>
                     <DialogTitle>Create New Store & Admin</DialogTitle>
@@ -87,11 +140,34 @@ export function CreateStoreModal({
                 </DialogHeader>
 
                 <Form {...form}>
-                    <form
-                        onSubmit={form.handleSubmit(onSubmit)}
-                        className="space-y-4"
-                    >
-                        <div className="grid grid-cols-2 gap-4">
+                    {createdCredentials ? (
+                        <div className="space-y-6">
+                            <div className="p-4 bg-muted/50 rounded-lg border border-border relative">
+                                <h3 className="font-semibold mb-2 text-sm text-foreground">Created Credentials</h3>
+                                <div className="space-y-1 text-sm text-muted-foreground">
+                                    <p><span className="font-medium text-foreground">Store:</span> {createdCredentials.name}</p>
+                                    <p><span className="font-medium text-foreground">Email:</span> {createdCredentials.adminEmail}</p>
+                                    <p><span className="font-medium text-foreground">Password:</span> {createdCredentials.adminPassword}</p>
+                                </div>
+                                <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    className="absolute top-2 right-2 h-8 w-8 cursor-pointer"
+                                    onClick={handleCopy}
+                                >
+                                    {isCopied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+                                    <span className="sr-only">Copy credentials</span>
+                                </Button>
+                            </div>
+                            <DialogFooter>
+                                <Button onClick={handleClose}>Close</Button>
+                            </DialogFooter>
+                        </div>
+                    ) : (
+                        <form
+                            onSubmit={form.handleSubmit(onSubmit)}
+                            className="space-y-4"
+                        >
                             <FormField
                                 control={form.control}
                                 name="name"
@@ -126,39 +202,41 @@ export function CreateStoreModal({
                                     </FormItem>
                                 )}
                             />
-                        </div>
 
-                        <FormField
-                            control={form.control}
-                            name="address"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Store Address *</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="123 Main St" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                            <FormField
+                                control={form.control}
+                                name="address"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Store Address *</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="123 Main St" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
 
-                        <div className="grid grid-cols-2 gap-4">
                             <FormField
                                 control={form.control}
                                 name="stateCode"
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>State Code *</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                placeholder="MH"
-                                                maxLength={2}
-                                                {...field}
-                                                onChange={(e) =>
-                                                    field.onChange(e.target.value.toUpperCase())
-                                                }
-                                            />
-                                        </FormControl>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select a state" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent className="max-h-[200px]">
+                                                {INDIAN_STATES.map((state) => (
+                                                    <SelectItem key={state.code} value={state.code}>
+                                                        {state.name} ({state.code})
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
                                         <FormMessage />
                                     </FormItem>
                                 )}
@@ -171,46 +249,66 @@ export function CreateStoreModal({
                                     <FormItem>
                                         <FormLabel>Admin Email *</FormLabel>
                                         <FormControl>
-                                            <Input type="email" {...field} />
+                                            <Input type="email" {...field} placeholder="example@mail.com" />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
                                 )}
                             />
-                        </div>
 
-                        <FormField
-                            control={form.control}
-                            name="adminPassword"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Admin Password *</FormLabel>
-                                    <FormControl>
-                                        <Input type="password" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        <DialogFooter>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                disabled={isLoading}
-                                onClick={() => handleDialogChange(false)}
-                            >
-                                Cancel
-                            </Button>
-
-                            <Button type="submit" disabled={isLoading} >
-                                {isLoading && (
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            <FormField
+                                control={form.control}
+                                name="adminPassword"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Admin Password *</FormLabel>
+                                        <div className="relative">
+                                            <FormControl>
+                                                <Input
+                                                    type={showPassword ? "text" : "password"}
+                                                    {...field}
+                                                    placeholder="Abcd1234"
+                                                    className="pr-10"
+                                                />
+                                            </FormControl>
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="icon"
+                                                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent cursor-pointer"
+                                                onClick={() => setShowPassword(!showPassword)}
+                                            >
+                                                {showPassword ? (
+                                                    <EyeOff className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                                                ) : (
+                                                    <Eye className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                                                )}
+                                                <span className="sr-only">
+                                                    {showPassword ? "Hide password" : "Show password"}
+                                                </span>
+                                            </Button>
+                                        </div>
+                                        <FormMessage />
+                                    </FormItem>
                                 )}
-                                Create Store
-                            </Button>
-                        </DialogFooter>
-                    </form>
+                            />
+
+                            <DialogFooter>
+                                <Button type="button" variant={"outline"} onClick={() => form.reset()}>Reset</Button>
+
+                                <Button type="submit" disabled={form.formState.isSubmitting} >
+                                    {form.formState.isSubmitting ? (
+                                        <span className="flex items-center gap-2">
+                                            <Spinner />
+                                            Creating Store...
+                                        </span>
+                                    ) : (
+                                        "Create Store"
+                                    )}
+                                </Button>
+                            </DialogFooter>
+                        </form>
+                    )}
                 </Form>
             </DialogContent>
         </Dialog>
