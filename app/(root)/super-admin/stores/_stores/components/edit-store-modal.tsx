@@ -5,11 +5,13 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import {
     Dialog,
+    DialogClose,
     DialogContent,
     DialogDescription,
     DialogFooter,
     DialogHeader,
     DialogTitle,
+    DialogTrigger,
 } from "@/components/ui/dialog"
 import {
     Form,
@@ -21,23 +23,21 @@ import {
 } from "@/components/ui/form"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Loader2 } from "lucide-react"
+import { 
+    Select, 
+    SelectContent, 
+    SelectItem, 
+    SelectTrigger, 
+    SelectValue 
+} from "@/components/ui/select"
 import { updateStoreSchema, type UpdateStoreInput } from "../schemas"
-import { useStoreMutations } from "../../_hooks/use-store-mutations"
 import type { Store } from "../types"
+import { useState } from "react"
+import { updateStore } from "../actions"
+import { Spinner } from "@/components/ui/spinner"
 
-interface EditStoreModalProps {
-    store: Store | null
-    open: boolean
-    onOpenChange: (open: boolean) => void
-    onStoreUpdated?: () => void
-}
-
-export function EditStoreModal({ store, open, onOpenChange, onStoreUpdated }: EditStoreModalProps) {
-    const { updateStore, isLoading } = useStoreMutations({
-        onSuccess: onStoreUpdated,
-    })
+export function EditStoreModal({ store }: {store: Store | null}) {
+    const [open, setOpen] = useState(false)
 
     const form = useForm<UpdateStoreInput>({
         resolver: zodResolver(updateStoreSchema),
@@ -68,17 +68,20 @@ export function EditStoreModal({ store, open, onOpenChange, onStoreUpdated }: Ed
     const onSubmit = async (data: UpdateStoreInput) => {
         const result = await updateStore(data)
         if (result.success) {
-            onOpenChange(false)
+            setOpen(false)
         }
     }
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+                <Button variant="outline">Edit Store</Button>
+            </DialogTrigger>
             <DialogContent className="sm:max-w-[500px]">
                 <DialogHeader>
                     <DialogTitle>Edit Store</DialogTitle>
                     <DialogDescription>
-                        Update store information. Store ID: {store?.storeId}
+                        Update store information. Store ID: {store?.id}
                     </DialogDescription>
                 </DialogHeader>
 
@@ -181,16 +184,17 @@ export function EditStoreModal({ store, open, onOpenChange, onStoreUpdated }: Ed
                         </div>
 
                         <DialogFooter>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={() => onOpenChange(false)}
-                                disabled={isLoading}
-                            >
-                                Cancel
-                            </Button>
-                            <Button type="submit" disabled={isLoading}>
-                                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            <DialogClose asChild>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    disabled={form.formState.isSubmitting}
+                                >
+                                    Cancel
+                                </Button>
+                            </DialogClose>
+                            <Button type="submit" disabled={form.formState.isSubmitting}>
+                                {form.formState.isSubmitting && <Spinner/>}
                                 Update Store
                             </Button>
                         </DialogFooter>

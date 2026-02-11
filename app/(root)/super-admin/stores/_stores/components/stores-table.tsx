@@ -17,17 +17,13 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { MoreHorizontal, Pencil, Trash2, Power, PowerOff } from "lucide-react"
+import { MoreHorizontal, Power, PowerOff } from "lucide-react"
 import type { Store } from "../types"
+import { EditStoreModal } from "./edit-store-modal"
+import { DeleteStoreDialog } from "./delete-store-dialog"
+import { toggleStoreStatus } from "../actions"
 
-interface StoresTableProps {
-    stores: Store[]
-    onEdit: (store: Store) => void
-    onDelete: (store: Store) => void
-    onToggleStatus: (store: Store) => void
-}
-
-export function StoresTable({ stores, onEdit, onDelete, onToggleStatus }: StoresTableProps) {
+export function StoresTable({ stores }: { stores: Store[] }) {
     const getStatusBadge = (status: Store["status"]) => {
         switch (status) {
             case "active":
@@ -77,11 +73,10 @@ export function StoresTable({ stores, onEdit, onDelete, onToggleStatus }: Stores
                                         </Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end">
-                                        <DropdownMenuItem onClick={() => onEdit(store)}>
-                                            <Pencil className="mr-2 h-4 w-4" />
-                                            Edit
+                                        <DropdownMenuItem asChild>
+                                            <EditStoreModal store={store} />
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem onClick={() => onToggleStatus(store)}>
+                                        <DropdownMenuItem onClick={async () => await toggleStoreStatus(store.id)}>
                                             {store.status === "active" ? (
                                                 <>
                                                     <PowerOff className="mr-2 h-4 w-4" />
@@ -95,12 +90,8 @@ export function StoresTable({ stores, onEdit, onDelete, onToggleStatus }: Stores
                                             )}
                                         </DropdownMenuItem>
                                         <DropdownMenuSeparator />
-                                        <DropdownMenuItem
-                                            onClick={() => onDelete(store)}
-                                            className="text-red-600 focus:text-red-600"
-                                        >
-                                            <Trash2 className="mr-2 h-4 w-4" />
-                                            Delete
+                                        <DropdownMenuItem asChild>
+                                            <DeleteStoreDialog storeId={store.id} />
                                         </DropdownMenuItem>
                                     </DropdownMenuContent>
                                 </DropdownMenu>

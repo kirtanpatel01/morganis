@@ -1,8 +1,6 @@
 "use server";
 
 import { supabase } from "@/lib/supabase/auth-admin";
-import { resend } from "@/lib/resend";
-import { getWelcomeEmailTemplate } from "@/lib/email-templates";
 import { STORES_DATA } from "./constants";
 import type {
   Store,
@@ -10,6 +8,7 @@ import type {
   UpdateStoreInput,
   StoreFilters,
 } from "./types";
+import { createClient } from "@/lib/supabase/server";
 
 // Simulate API delay
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -20,25 +19,34 @@ let stores = [...STORES_DATA];
 /**
  * Fetch all stores with optional filters
  */
-export async function getStores(filters?: StoreFilters): Promise<Store[]> {
-  await delay(100);
+export async function getStores(
+  filters?: StoreFilters,
+): Promise<{ success: boolean; message: string; data: { stores: Store[] } }> {
+  const supabase = await createClient();
+  try {
+    const { data, error } = await supabase
+      .schema("public")
+      .from("stores")
+      .select("*")
 
-  let result = [...stores];
+    if (error) {
+      console.error("Failed to fetch stores:", error);
+      return { success: false, message: error.message, data: { stores: [] } };
+    }
 
-  if (filters?.search) {
-    const search = filters.search.toLowerCase();
-    result = result.filter(
-      (store) =>
-        store.name.toLowerCase().includes(search) ||
-        store.gstin.toLowerCase().includes(search),
-    );
+    return {
+      success: true,
+      message: "Stores fetched successfully",
+      data: { stores: data || [] },
+    };
+  } catch (error) {
+    console.error("Failed to fetch stores:", error);
+    return {
+      success: false,
+      message: "Failed to fetch stores",
+      data: { stores: [] },
+    };
   }
-
-  if (filters?.status && filters.status !== "all") {
-    result = result.filter((store) => store.status === filters.status);
-  }
-
-  return result;
 }
 
 /**
@@ -63,30 +71,30 @@ export async function createStore(formData: CreateStoreInput): Promise<{
     email: adminEmail,
     password: adminPassword,
     user_metadata: { name: name, role: "admin" },
-    email_confirm: true, 
+    email_confirm: true,
   });
 
-  if(error) {
+  if (error) {
     console.error("Failed to create user:", error);
-    return { success: false, message: error.message, data: {} }
+    return { success: false, message: error.message, data: {} };
   }
 
   const { data: storeData, error: storeError } = await supabase
-  .schema("public")
-  .from("stores")
-  .insert({
-    admin_id: data.user.id,
-    name,
-    gstin,
-    address,
-    state_code: stateCode,
-  })
-  .select()
-  .single();
+    .schema("public")
+    .from("stores")
+    .insert({
+      admin_id: data.user.id,
+      name,
+      gstin,
+      address,
+      state_code: stateCode,
+    })
+    .select()
+    .single();
 
-  if(storeError) {
+  if (storeError) {
     console.error("Failed to create store:", storeError);
-    return { success: false, message: storeError.message, data: {} }
+    return { success: false, message: storeError.message, data: {} };
   }
 
   // Send store creation email
@@ -117,7 +125,11 @@ export async function createStore(formData: CreateStoreInput): Promise<{
   //   return { success: false, message: "Failed to send welcome email", data: {} }
   // }
 
-  return { success: true, message: "Store created successfully", data: { store: storeData } };
+  return {
+    success: true,
+    message: "Store created successfully",
+    data: { store: storeData },
+  };
 }
 
 /**

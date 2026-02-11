@@ -25,10 +25,11 @@ export async function updateSession(request: NextRequest) {
     }
   )
 
-  const { data } = await supabase.auth.getClaims()
+  const { data: { user } } = await supabase.auth.getUser()
 
-  const user = data?.claims
+  const role = user?.user_metadata?.role
 
+  // Protect routes for unauthenticated users
   if (
     !user &&
     (request.nextUrl.pathname.startsWith('/admin') || request.nextUrl.pathname.startsWith('/super-admin')) &&
@@ -38,6 +39,23 @@ export async function updateSession(request: NextRequest) {
     const url = request.nextUrl.clone()
     url.pathname = '/auth/admin-login'
     return NextResponse.redirect(url)
+  }
+
+  // Role-based protection
+  if (user) {
+    // Super Admin cannot access Admin routes
+    if (role === 'super-admin' && request.nextUrl.pathname.startsWith('/admin')) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/super-admin'
+      return NextResponse.redirect(url)
+    }
+
+    // Admin cannot access Super Admin routes
+    if (role === 'admin' && request.nextUrl.pathname.startsWith('/super-admin')) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/admin'
+      return NextResponse.redirect(url)
+    }
   }
 
   return supabaseResponse

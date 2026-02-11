@@ -44,6 +44,7 @@ import {
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Separator } from "./ui/separator"
+import { logoutAdmin } from "@/app/auth/admin-login/action"
 
 // Super Admin navigation data
 const data = {
@@ -155,14 +156,13 @@ function SuperAdminSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-semibold">{data.user.name}</span>
-                    <span className="truncate text-xs">{data.user.email}</span>
                   </div>
                   <ChevronsUpDown className="ml-auto size-4" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent
-                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
-                side={isMobile ? "bottom" : "right"}
+                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg ml-1"
+                side={isMobile ? "bottom" : "top"}
                 align="end"
                 sideOffset={4}
               >
@@ -186,7 +186,7 @@ function SuperAdminSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem variant="destructive" onClick={async () => await logoutAdmin()} className="cursor-pointer">
                   <LogOut />
                   Log out
                 </DropdownMenuItem>

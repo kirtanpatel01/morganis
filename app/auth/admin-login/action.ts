@@ -62,3 +62,9 @@ export async function loginAdmin(data: LoginData) {
     redirect('/admin')
   }
 }
+
+export async function logoutAdmin() {
+  const supabase = await createClient()
+  await supabase.auth.signOut()
+  redirect('/auth/admin-login')
+}
