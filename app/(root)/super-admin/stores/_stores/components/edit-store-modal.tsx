@@ -78,7 +78,7 @@ export function EditStoreModal({ store, open, onOpenChange, onStoreUpdated }: Ed
                 <DialogHeader>
                     <DialogTitle>Edit Store</DialogTitle>
                     <DialogDescription>
-                        Update store information. Store ID: {store?.storeId}
+                        Update store information. Store ID: {store?.id}
                     </DialogDescription>
                 </DialogHeader>
 

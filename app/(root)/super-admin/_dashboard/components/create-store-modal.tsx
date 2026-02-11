@@ -24,11 +24,7 @@ interface CreateStoreModalProps {
     onStoreCreated?: () => void
 }
 
-export function CreateStoreModal({
-    open,
-    onOpenChange,
-    onStoreCreated,
-}: CreateStoreModalProps) {
+export function CreateStoreModal({open, onOpenChange,onStoreCreated,}: CreateStoreModalProps) {
     const form = useForm<CreateStoreInput>({
         resolver: zodResolver(createStoreSchema),
         mode: "onBlur",

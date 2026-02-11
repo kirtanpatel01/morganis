@@ -74,8 +74,8 @@ const data = {
       icon: ShoppingCart,
     },
     {
-      title: "Users",
-      url: "/super-admin/users",
+      title: "Admins",
+      url: "/super-admin/admins",
       icon: Users,
     },
     {
