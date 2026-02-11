@@ -63,6 +63,22 @@ export async function loginAdmin(data: LoginData) {
   }
 }
 
+export async function getCurrentAdmin() {
+  const supabase = await createClient()
+  const { data: { user }, error } = await supabase.auth.getUser()
+
+  if (error || !user) {
+    return null
+  }
+
+  return {
+    name: user.user_metadata.name || 'Admin',
+    email: user.email || '',
+    avatar: user.user_metadata.avatar_url, // Might be undefined, handled in component
+    role: user.user_metadata.role
+  }
+}
+
 export async function logoutAdmin() {
   const supabase = await createClient()
   await supabase.auth.signOut()

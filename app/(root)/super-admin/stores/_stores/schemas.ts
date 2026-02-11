@@ -9,6 +9,11 @@ export const createStoreSchema = z.object({
     .min(1, "Store name is required")
     .min(2, "Store name must be at least 2 characters")
     .max(100, "Store name must be less than 100 characters"),
+
+  ownerName: z
+    .string()
+    .min(1, "Owner name is required")
+    .min(2, "Owner name must be at least 2 characters"),
   
   gstin: z
     .string()

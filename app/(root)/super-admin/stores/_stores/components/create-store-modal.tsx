@@ -103,6 +103,7 @@ export function CreateStoreModal() {
         shouldUnregister: true,
         defaultValues: {
             name: "",
+            ownerName: "",
             gstin: "",
             address: "",
             stateCode: "",
@@ -117,7 +118,6 @@ export function CreateStoreModal() {
         if (result?.success) {
             toast.success("Store has been created successfully")
             setCreatedCredentials(data)
-            // Do not close immediately, show credentials first
         } else {
             toast.error(result?.message ?? "Failed to create store")
         }
@@ -146,6 +146,7 @@ export function CreateStoreModal() {
                                 <h3 className="font-semibold mb-2 text-sm text-foreground">Created Credentials</h3>
                                 <div className="space-y-1 text-sm text-muted-foreground">
                                     <p><span className="font-medium text-foreground">Store:</span> {createdCredentials.name}</p>
+                                    <p><span className="font-medium text-foreground">Owner:</span> {createdCredentials.ownerName}</p>
                                     <p><span className="font-medium text-foreground">Email:</span> {createdCredentials.adminEmail}</p>
                                     <p><span className="font-medium text-foreground">Password:</span> {createdCredentials.adminPassword}</p>
                                 </div>
@@ -176,6 +177,20 @@ export function CreateStoreModal() {
                                         <FormLabel>Store Name *</FormLabel>
                                         <FormControl>
                                             <Input placeholder="My Restaurant" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <FormField
+                                control={form.control}
+                                name="ownerName"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Owner Name *</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="John Doe" {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>

@@ -20,7 +20,6 @@ export function Pagination({
     canGoPrev,
     className = "",
 }: PaginationProps) {
-    // Don't show pagination if there's only one page
     if (totalPages <= 1) {
         return null
     }

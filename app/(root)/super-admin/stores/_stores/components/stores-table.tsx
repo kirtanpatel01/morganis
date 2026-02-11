@@ -17,11 +17,13 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { MoreHorizontal, Power, PowerOff } from "lucide-react"
+import { MoreHorizontal, Pencil, Power, PowerOff, Trash } from "lucide-react"
 import type { Store } from "../types"
-import { EditStoreModal } from "./edit-store-modal"
-import { DeleteStoreDialog } from "./delete-store-dialog"
+import { EditStoreDialogContent } from "./edit-store-dialog-content"
+import { AlertDialog, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import { toggleStoreStatus } from "../actions"
+import { DeleteStoreDialogContent } from "./delete-store-dialog-content"
+import { Dialog, DialogTrigger } from "@/components/ui/dialog"
 
 export function StoresTable({ stores }: { stores: Store[] }) {
     const getStatusBadge = (status: Store["status"]) => {
@@ -50,9 +52,10 @@ export function StoresTable({ stores }: { stores: Store[] }) {
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead>Name</TableHead>
+                        <TableHead>Store Name</TableHead>
+                        <TableHead>Owner</TableHead>
                         <TableHead>GSTIN</TableHead>
-                        <TableHead>State</TableHead>
+                        <TableHead>State Code</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead className="w-[70px]">Actions</TableHead>
                     </TableRow>
@@ -61,40 +64,53 @@ export function StoresTable({ stores }: { stores: Store[] }) {
                     {stores.map((store) => (
                         <TableRow key={store.id}>
                             <TableCell className="font-medium">{store.name}</TableCell>
+                            <TableCell>{store.owner_name || "-"}</TableCell>
                             <TableCell className="font-mono text-sm">{store.gstin}</TableCell>
-                            <TableCell>{store.stateCode}</TableCell>
+                            <TableCell>{store.state_code}</TableCell>
                             <TableCell>{getStatusBadge(store.status)}</TableCell>
                             <TableCell>
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <Button variant="ghost" className="h-8 w-8 p-0">
-                                            <span className="sr-only">Open menu</span>
-                                            <MoreHorizontal className="h-4 w-4" />
-                                        </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="end">
-                                        <DropdownMenuItem asChild>
-                                            <EditStoreModal store={store} />
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem onClick={async () => await toggleStoreStatus(store.id)}>
-                                            {store.status === "active" ? (
-                                                <>
-                                                    <PowerOff className="mr-2 h-4 w-4" />
-                                                    Deactivate
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <Power className="mr-2 h-4 w-4" />
-                                                    Activate
-                                                </>
-                                            )}
-                                        </DropdownMenuItem>
-                                        <DropdownMenuSeparator />
-                                        <DropdownMenuItem asChild>
-                                            <DeleteStoreDialog storeId={store.id} />
-                                        </DropdownMenuItem>
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
+                                <Dialog>
+                                    <AlertDialog>
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button variant="ghost" className="h-8 w-8 p-0">
+                                                    <span className="sr-only">Open menu</span>
+                                                    <MoreHorizontal className="h-4 w-4" />
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end">
+                                                <DropdownMenuItem>
+                                                    <DialogTrigger asChild>
+                                                        <span className="cursor-pointer w-full flex items-center gap-2"><Pencil />
+                                                            Edit</span>
+                                                    </DialogTrigger>
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem onClick={async () => await toggleStoreStatus(store)} className="cursor-pointer">
+                                                    {store.status === "active" ? (
+                                                        <>
+                                                            <PowerOff className="h-4 w-4" />
+                                                            Deactivate
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <Power className="h-4 w-4" />
+                                                            Activate
+                                                        </>
+                                                    )}
+                                                </DropdownMenuItem>
+                                                <DropdownMenuSeparator />
+                                                <DropdownMenuItem variant="destructive">
+                                                    <AlertDialogTrigger asChild>
+                                                        <span className="w-full cursor-pointer flex items-center gap-2"><Trash />
+                                                            Delete</span>
+                                                    </AlertDialogTrigger>
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                        <EditStoreDialogContent store={store} />
+                                        <DeleteStoreDialogContent storeId={store.id} storeName={store.name} />
+                                    </AlertDialog>
+                                </Dialog>
                             </TableCell>
                         </TableRow>
                     ))}

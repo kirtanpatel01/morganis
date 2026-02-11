@@ -1,76 +1,98 @@
 "use server";
 
-import { supabase } from "@/lib/supabase/auth-admin";
-import { STORES_DATA } from "./constants";
+import { revalidatePath } from "next/cache";
+
+import { supabaseAdminAuth } from "@/lib/supabase/auth-admin";
 import type {
   Store,
   CreateStoreInput,
   UpdateStoreInput,
-  StoreFilters,
 } from "./types";
 import { createClient } from "@/lib/supabase/server";
 
-// Simulate API delay
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
-// In-memory store for demo (would be database in production)
-let stores = [...STORES_DATA];
-
-/**
- * Fetch all stores with optional filters
- */
 export async function getStores(
-  filters?: StoreFilters,
-): Promise<{ success: boolean; message: string; data: { stores: Store[] } }> {
+  filters?: { search?: string; status?: string }
+): Promise<Store[]> {
+  console.log("getStores filters:", filters);
   const supabase = await createClient();
   try {
-    const { data, error } = await supabase
+    let query = supabase
       .schema("public")
       .from("stores")
-      .select("*")
+      .select("*");
+
+    if (filters?.search) {
+      const s = filters.search;
+      // Using .or() to search across multiple columns
+      // Note: id is uuid, requires exact match or cast to text if supported by ilike (which it usually is in PG via cast)
+      // But for simplicity, we'll try ilike on text fields.
+      // Supabase `or` with `ilike` format: column.ilike.value
+      query = query.or(`name.ilike.%${s}%,gstin.ilike.%${s}%,state_code.ilike.%${s}%`);
+    }
+
+    if (filters?.status && filters.status !== "all") {
+      query = query.eq("status", filters.status);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       console.error("Failed to fetch stores:", error);
-      return { success: false, message: error.message, data: { stores: [] } };
+      return [];
     }
 
-    return {
-      success: true,
-      message: "Stores fetched successfully",
-      data: { stores: data || [] },
-    };
+    const stores = (data as Store[]) || [];
+
+    // Fetch owner names for each store
+    const enrichedStores = await Promise.all(
+      stores.map(async (store) => {
+        if (!store.admin_id) return store;
+        
+        try {
+          const { data: userData, error } = await supabaseAdminAuth.auth.admin.getUserById(store.admin_id);
+          
+          if (error || !userData.user) {
+            console.error(`Failed to fetch user for store ${store.id}:`, error);
+            return store;
+          }
+          
+          return {
+            ...store,
+            owner_name: userData.user.user_metadata?.name || "Unknown",
+          };
+        } catch (error) {
+          console.error(`Error fetching user for store ${store.id}:`, error);
+          return store;
+        }
+      })
+    );
+
+    return enrichedStores;
   } catch (error) {
     console.error("Failed to fetch stores:", error);
-    return {
-      success: false,
-      message: "Failed to fetch stores",
-      data: { stores: [] },
-    };
+    return []
   }
 }
 
-/**
- * Get a single store by ID
- */
-export async function getStoreById(id: string): Promise<Store | null> {
-  await delay(100);
-  return stores.find((store) => store.id === id) || null;
-}
-
-/**
- * Create a new store
- */
 export async function createStore(formData: CreateStoreInput): Promise<{
   success: boolean;
   message: string;
   data: { store?: Store };
 }> {
-  const { name, gstin, address, stateCode, adminEmail, adminPassword } =
+  const supabase = await createClient();
+  const { data: { user: superAdmin } } = await supabase.auth.getUser();
+  console.log("super_admin", superAdmin);
+  if(!superAdmin) {
+    console.error("Failed to get super admin user");
+    return { success: false, message: "Failed to get super admin user", data: {} };
+  }
+
+  const { name, ownerName, gstin, address, stateCode, adminEmail, adminPassword } =
     formData;
-  const { data, error } = await supabase.auth.admin.createUser({
+  const { data, error } = await supabaseAdminAuth.auth.admin.createUser({
     email: adminEmail,
     password: adminPassword,
-    user_metadata: { name: name, role: "admin" },
+    user_metadata: { name: ownerName, role: "admin" },
     email_confirm: true,
   });
 
@@ -83,6 +105,7 @@ export async function createStore(formData: CreateStoreInput): Promise<{
     .schema("public")
     .from("stores")
     .insert({
+      super_admin_id: superAdmin.id,
       admin_id: data.user.id,
       name,
       gstin,
@@ -132,83 +155,92 @@ export async function createStore(formData: CreateStoreInput): Promise<{
   };
 }
 
-/**
- * Update a store
- */
 export async function updateStore(
   data: UpdateStoreInput,
 ): Promise<{ success: boolean; message: string; store?: Store }> {
-  await delay(200);
+  const supabase = await createClient();
 
-  const index = stores.findIndex((store) => store.id === data.id);
-  if (index === -1) {
-    return { success: false, message: "Store not found" };
+  const { id, ...updateData } = data;
+
+  const updates: Record<string, any> = {};
+  if (updateData.name) updates.name = updateData.name;
+  if (updateData.gstin) updates.gstin = updateData.gstin;
+  if (updateData.address) updates.address = updateData.address;
+  if (updateData.stateCode) updates.state_code = updateData.stateCode;
+  if (updateData.status) updates.status = updateData.status;
+
+  const { data: updatedStore, error } = await supabase
+    .schema("public")
+    .from("stores")
+    .update(updates)
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error("Failed to update store:", error);
+    return { success: false, message: error.message };
   }
 
-  const updatedStore = {
-    ...stores[index],
-    ...(data.name && { name: data.name }),
-    ...(data.gstin && { gstin: data.gstin }),
-    ...(data.address && { address: data.address }),
-    ...(data.stateCode && { stateCode: data.stateCode }),
-    ...(data.status && { status: data.status }),
-  };
-
-  stores[index] = updatedStore;
-  console.log("Store updated:", updatedStore);
+  revalidatePath("/super-admin/stores");
 
   return {
     success: true,
     message: "Store updated successfully",
-    store: updatedStore,
+    store: updatedStore as Store,
   };
 }
 
-/**
- * Delete a store
- */
 export async function deleteStore(
   id: string,
 ): Promise<{ success: boolean; message: string }> {
-  await delay(200);
+  const supabase = await createClient();
 
-  const index = stores.findIndex((store) => store.id === id);
-  if (index === -1) {
-    return { success: false, message: "Store not found" };
+  const { error } = await supabase
+    .schema("public")
+    .from("stores")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    console.error("Failed to delete store:", error);
+    return { success: false, message: error.message };
   }
 
-  const deletedStore = stores[index];
-  stores = stores.filter((store) => store.id !== id);
-  console.log("Store deleted:", deletedStore);
+  revalidatePath("/super-admin/stores");
 
   return {
     success: true,
-    message: `Store "${deletedStore.name}" deleted successfully`,
+    message: "Store deleted successfully",
   };
 }
 
-/**
- * Toggle store status (activate/deactivate)
- */
 export async function toggleStoreStatus(
-  id: string,
+  store: Store,
 ): Promise<{ success: boolean; message: string; store?: Store }> {
-  await delay(200);
+  const supabase = await createClient();
 
-  const index = stores.findIndex((store) => store.id === id);
-  if (index === -1) {
-    return { success: false, message: "Store not found" };
+  const newStatus = store.status === "active" ? "inactive" : "active";
+
+  const { data: updatedStore, error: updateError } = await supabase
+    .schema("public")
+    .from("stores")
+    .update({ status: newStatus })
+    .eq("id", store.id)
+    .select()
+    .single();
+
+  if (updateError) {
+    console.error("Failed to update store status:", updateError);
+    return { success: false, message: updateError.message };
   }
 
-  const currentStatus = stores[index].status;
-  const newStatus = currentStatus === "active" ? "inactive" : "active";
-
-  stores[index] = { ...stores[index], status: newStatus };
-  console.log(`Store ${id} status changed to ${newStatus}`);
+  console.log(`Store ${store.id} status changed to ${newStatus}`);
+  revalidatePath("/super-admin/stores");
 
   return {
     success: true,
     message: `Store ${newStatus === "active" ? "activated" : "deactivated"} successfully`,
-    store: stores[index],
+    store: updatedStore as Store,
   };
 }
