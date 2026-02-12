@@ -6,6 +6,8 @@ import { revalidatePath } from "next/cache";
 export type NotificationType =
   | "store_created"
   | "store_status_changed"
+  | "store_updated"
+  | "profile_updated"
   | "info"
   | "warning"
   | "error"

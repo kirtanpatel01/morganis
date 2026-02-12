@@ -16,6 +16,8 @@ export function getNotificationIcon(type: Notification["type"]) {
       return AlertCircle
     case "info":
     case "store_status_changed":
+    case "store_updated":
+    case "profile_updated":
     default:
       return Info
   }
