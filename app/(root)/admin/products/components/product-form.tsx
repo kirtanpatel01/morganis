@@ -39,21 +39,36 @@ export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
 
     const form = useForm<ProductFormValues>({
         resolver: zodResolver(productSchema),
-        defaultValues: initialData || {
-            name: "",
-            description: "",
-            price: 0,
-            stock: 0,
-            category: "",
-            status: "active",
-            imageUrl: "",
+        defaultValues: {
+            name: initialData?.name || "",
+            description: initialData?.description || "",
+            price: initialData?.price || 0,
+            stock: initialData?.stock || 0,
+            category_id: initialData?.category_id || "",
+            status: initialData?.status || "active",
         },
     });
 
     // Reset form when initialData changes (for edit mode)
     useEffect(() => {
         if (initialData) {
-            form.reset(initialData);
+            form.reset({
+                name: initialData.name,
+                description: initialData.description || "",
+                price: initialData.price,
+                stock: initialData.stock,
+                category_id: initialData.category_id || "",
+                status: initialData.status,
+            });
+        } else {
+             form.reset({
+                name: "",
+                description: "",
+                price: 0,
+                stock: 0,
+                category_id: "",
+                status: "active",
+            });
         }
     }, [initialData, form]);
 
@@ -100,19 +115,7 @@ export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
                         </FormItem>
                     )}
                 />
-                <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Description</FormLabel>
-                            <FormControl>
-                                <Textarea placeholder="Product Description" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
+                
                 <div className="grid grid-cols-2 gap-4">
                     <FormField
                         control={form.control}
@@ -126,6 +129,7 @@ export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
                                         step="0.01"
                                         {...field}
                                         onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                                        value={field.value}
                                     />
                                 </FormControl>
                                 <FormMessage />
@@ -143,6 +147,7 @@ export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
                                         type="number"
                                         {...field}
                                         onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                                        value={field.value}
                                     />
                                 </FormControl>
                                 <FormMessage />
@@ -150,14 +155,15 @@ export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
                         )}
                     />
                 </div>
+
                 <div className="grid grid-cols-2 gap-4">
                     <FormField
                         control={form.control}
-                        name="category"
+                        name="category_id"
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Category</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <Select onValueChange={field.onChange} value={field.value}>
                                     <FormControl>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Select a category" />
@@ -165,7 +171,7 @@ export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
                                     </FormControl>
                                     <SelectContent>
                                         {categories?.map((cat) => (
-                                            <SelectItem key={cat.id} value={cat.name}>
+                                            <SelectItem key={cat.id} value={cat.id}>
                                                 {cat.name}
                                             </SelectItem>
                                         ))}
@@ -199,8 +205,22 @@ export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
                     />
                 </div>
 
-                <DialogFooter>
-                    <Button type="submit" disabled={isLoading}>
+                <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Description</FormLabel>
+                            <FormControl>
+                                <Textarea placeholder="Product Description" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+
+                <DialogFooter className="pt-4">
+                    <Button type="submit" disabled={isLoading} className="w-full sm:w-auto">
                         {isLoading ? "Saving..." : initialData ? "Update Product" : "Create Product"}
                     </Button>
                 </DialogFooter>

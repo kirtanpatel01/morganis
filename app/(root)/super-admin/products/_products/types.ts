@@ -15,7 +15,6 @@ export interface Product {
   categoryName: string
   storeId: string
   storeName: string
-  imageUrl?: string
   isAvailable: boolean
   createdAt: string
 }

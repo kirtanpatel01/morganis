@@ -22,37 +22,33 @@ export function ProductsTable({ products }: ProductsTableProps) {
 
     if (products.length === 0) {
         return (
-            <div className="flex items-center justify-center h-64 border rounded-lg bg-muted/10">
-                <p className="text-muted-foreground">No products found</p>
+            <div className="flex items-center justify-center p-8 border rounded-lg bg-muted/10 text-muted-foreground">
+                No products found
             </div>
         )
     }
 
     return (
-        <div className="border rounded-lg">
+        <div className="border rounded-lg overflow-x-auto">
             <Table>
                 <TableHeader>
                     <TableRow>
                         <TableHead>Product Name</TableHead>
-                        <TableHead>Description</TableHead>
                         <TableHead>Category</TableHead>
                         <TableHead>Store</TableHead>
-                        <TableHead className="text-right">Price</TableHead>
+                        <TableHead>Price</TableHead>
                         <TableHead>Status</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
                     {products.map((product) => (
                         <TableRow key={product.id}>
-                            <TableCell className="font-medium">{product.name}</TableCell>
-                            <TableCell className="text-muted-foreground max-w-[250px] truncate">
-                                {product.description}
-                            </TableCell>
+                            <TableCell className="font-medium whitespace-nowrap">{product.name}</TableCell>
                             <TableCell>
-                                <Badge variant="secondary">{product.categoryName}</Badge>
+                                <Badge variant="secondary" className="whitespace-nowrap">{product.categoryName}</Badge>
                             </TableCell>
                             <TableCell className="text-sm">{product.storeName}</TableCell>
-                            <TableCell className="text-right font-medium">
+                            <TableCell className="font-medium">
                                 {formatPrice(product.price)}
                             </TableCell>
                             <TableCell>

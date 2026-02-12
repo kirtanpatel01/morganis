@@ -3,15 +3,20 @@
 import { useState } from "react"
 import { PosSidebar } from "./pos-sidebar"
 import { ProductCard } from "./product-card"
-import { products } from "./product-data"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { IconSearch, IconSortAscending, IconAdjustmentsHorizontal } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { PosFooter } from "./pos-footer"
+import { usePublicProducts } from "@/lib/hooks/use-public-products"
 
-export function ProductBrowser() {
+interface ProductBrowserProps {
+    initialProducts: any[];
+    initialCategories: string[];
+}
+
+export function ProductBrowser({ initialProducts, initialCategories }: ProductBrowserProps) {
     const [searchQuery, setSearchQuery] = useState("")
     const [sortOption, setSortOption] = useState("featured")
     
@@ -20,6 +25,12 @@ export function ProductBrowser() {
     const [priceRange, setPriceRange] = useState<number[]>([0, 1000])
     const [inStock, setInStock] = useState(false)
     const [isNew, setIsNew] = useState(false)
+
+    // Realtime data
+    const { products, categories } = usePublicProducts({
+        initialProducts,
+        initialCategories
+    });
 
     // Handlers
     const handleCategoryChange = (category: string) => {
@@ -39,7 +50,7 @@ export function ProductBrowser() {
         setIsNew(false)
     }
 
-    const filteredProducts = products.filter(product => {
+    const filteredProducts = (products || []).filter((product: any) => {
         const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                             product.category.toLowerCase().includes(searchQuery.toLowerCase())
         const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(product.category)
@@ -48,11 +59,14 @@ export function ProductBrowser() {
         const matchesNew = !isNew || product.isNew
 
         return matchesSearch && matchesCategory && matchesPrice && matchesStock && matchesNew
-    }).sort((a, b) => {
+    }).sort((a: any, b: any) => {
         if (sortOption === "price-asc") return a.price - b.price
         if (sortOption === "price-desc") return b.price - a.price
         if (sortOption === "rating") return b.rating - a.rating
-        if (sortOption === "newest") return (a.isNew === b.isNew) ? 0 : a.isNew ? -1 : 1
+        if (sortOption === "newest") {
+             // Basic boolean sort or date sort if available
+             return (a.isNew === b.isNew) ? 0 : a.isNew ? -1 : 1
+        }
         return 0
     })
 
@@ -68,6 +82,7 @@ export function ProductBrowser() {
             isNew={isNew}
             onIsNewChange={setIsNew}
             onReset={handleReset}
+            categories={categories || []}
         />
     )
 
@@ -121,7 +136,7 @@ export function ProductBrowser() {
                 <div className="flex-1 overflow-y-auto">
                     <div className="p-4 lg:p-6">
                         <div className="pt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-                            {filteredProducts.map(product => (
+                            {filteredProducts.map((product: any) => (
                                 <ProductCard key={product.id} product={product} />
                             ))}
                         </div>

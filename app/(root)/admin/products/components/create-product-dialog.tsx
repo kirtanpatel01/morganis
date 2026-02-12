@@ -12,17 +12,37 @@ import {
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { ProductForm } from "./product-form";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
-export function CreateProductDialog() {
+interface CreateProductDialogProps {
+    storeStatus?: string;
+}
+
+export function CreateProductDialog({ storeStatus }: CreateProductDialogProps) {
   const [open, setOpen] = useState(false);
+  const isActive = storeStatus === 'active';
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" /> Add Product
-        </Button>
-      </DialogTrigger>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="inline-block"> {/* Wrap in div to support disabled button tooltip */}
+               <DialogTrigger asChild>
+                <Button disabled={!isActive}>
+                    <Plus className="mr-2 h-4 w-4" /> Add Product
+                </Button>
+               </DialogTrigger>
+            </div>
+          </TooltipTrigger>
+          {!isActive && (
+              <TooltipContent>
+                <p>You cannot create products because the store status is {storeStatus}.</p>
+              </TooltipContent>
+          )}
+        </Tooltip>
+      </TooltipProvider>
+      
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Create Product</DialogTitle>

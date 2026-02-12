@@ -8,9 +8,8 @@ import {
 } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Product } from "./product-data"
+import { Product } from "./product-data" // Assuming this type and data source needs update too if it has image
 import { IconShoppingCart, IconHeart } from "@tabler/icons-react"
-import Image from "next/image"
 
 interface ProductCardProps {
   product: Product
@@ -19,25 +18,27 @@ interface ProductCardProps {
 export function ProductCard({ product }: ProductCardProps) {
   return (
     <Card className="h-full flex flex-col justify-between overflow-hidden relative group">
-      <div className="relative w-full h-48 bg-muted overflow-hidden">
+      {/* Removed Image Section */}
+      <div className="relative w-full p-4 bg-muted/20 flex items-center justify-center min-h-[100px]">
+         {/* Placeholder or just text if no image */}
+         <div className="text-center">
+            <h3 className="font-semibold text-lg">{product.name}</h3>
+            <p className="text-sm text-muted-foreground">{product.category}</p>
+         </div>
+
         {product.isNew && (
             <Badge className="absolute top-1.5 left-1.5 h-5 px-1.5 text-[10px] bg-primary text-primary-foreground">
                 New
             </Badge>
         )}
-        {!product.inStock && (
-            <div className="absolute inset-0 bg-background/50 flex items-center justify-center backdrop-blur-sm">
+        {!product.inStock && ( // Assuming inStock is boolean
+            <div className="absolute inset-0 bg-background/50 flex items-center justify-center backdrop-blur-sm z-10">
                 <Badge variant="destructive">Out of Stock</Badge>
             </div>
         )}
       </div>
       
-      <CardHeader>
-        <CardTitle className="font-semibold leading-tight line-clamp-1 text-base">{product.name}</CardTitle>
-        <CardDescription className="text-sm line-clamp-1">{product.category}</CardDescription>
-      </CardHeader>
-      
-      <CardContent className="flex-1 flex flex-col justify-end">
+      <CardContent className="flex-1 flex flex-col justify-end pt-4">
         <div className="flex items-center justify-between mt-2">
             <div className="flex items-baseline gap-1.5">
                 <span className="text-lg font-bold">${product.price}</span>
