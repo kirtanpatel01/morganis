@@ -1,65 +1,21 @@
 import { Notification } from "@/types/notifications"
 import { Store, ShoppingCart, AlertCircle, CheckCircle, Info } from "lucide-react"
 
-// Mock notification data
-export const MOCK_NOTIFICATIONS: Notification[] = [
-  {
-    id: "1",
-    title: "New Store Created",
-    message: "Paramjeet Restaurant has been successfully created",
-    type: "success",
-    status: "unread",
-    timestamp: new Date(Date.now() - 1000 * 60 * 5).toISOString(), // 5 minutes ago
-    link: "/super-admin/stores",
-  },
-  {
-    id: "2",
-    title: "Order Pending Approval",
-    message: "Order #ORD-1234 from Shree Nath Bhavan is waiting for approval",
-    type: "warning",
-    status: "unread",
-    timestamp: new Date(Date.now() - 1000 * 60 * 15).toISOString(), // 15 minutes ago
-    link: "/super-admin/orders",
-  },
-  {
-    id: "3",
-    title: "Store Status Changed",
-    message: "Venkatesh store has been marked as inactive",
-    type: "info",
-    status: "read",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), // 2 hours ago
-    link: "/super-admin/stores",
-  },
-  {
-    id: "4",
-    title: "System Update",
-    message: "New features have been added to the analytics dashboard",
-    type: "info",
-    status: "read",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), // 1 day ago
-    link: "/super-admin/analytics",
-  },
-  {
-    id: "5",
-    title: "Payment Failed",
-    message: "Payment processing failed for Order #ORD-5678",
-    type: "error",
-    status: "read",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(), // 2 days ago
-    link: "/super-admin/orders",
-  },
-]
+// Mock notification data - REPLACED BY DATABASE & REACT QUERY
+// Kept temporarily for reference but emptied/commented to avoid type errors with old schema
 
 // Helper function to get notification icon
 export function getNotificationIcon(type: Notification["type"]) {
   switch (type) {
     case "success":
+    case "store_created":
       return CheckCircle
     case "warning":
       return AlertCircle
     case "error":
       return AlertCircle
     case "info":
+    case "store_status_changed":
     default:
       return Info
   }

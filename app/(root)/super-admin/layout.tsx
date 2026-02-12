@@ -20,7 +20,7 @@ export default async function SuperAdminLayout({
     <SidebarProvider
       style={
         {
-          "--sidebar-width": "calc(var(--spacing) * 56)",
+          "--sidebar-width": "calc(var(--spacing) * 40)",
           "--header-height": "calc(var(--spacing) * 16)",
         } as React.CSSProperties
       }

@@ -27,14 +27,16 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { MoreHorizontal, Plus, Search } from "lucide-react";
-import { useProducts, useDeleteProduct, useCategories } from "../hooks/use-products";
+import { useProducts, useCategories } from "../hooks/use-products";
 import { Product } from "../types";
 
 interface ProductTableProps {
     onEdit?: (product: Product) => void;
+    onDelete?: (product: Product) => void;
+    action?: React.ReactNode;
 }
 
-export function ProductTable({ onEdit }: ProductTableProps) {
+export function ProductTable({ onEdit, onDelete, action }: ProductTableProps) {
     const [search, setSearch] = useState("");
     const [categoryFilter, setCategoryFilter] = useState("all");
     const [page, setPage] = useState(1);
@@ -47,7 +49,6 @@ export function ProductTable({ onEdit }: ProductTableProps) {
         limit: pageSize,
     });
     const { data: categories } = useCategories();
-    const { mutate: deleteProduct } = useDeleteProduct();
 
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearch(e.target.value);
@@ -88,9 +89,7 @@ export function ProductTable({ onEdit }: ProductTableProps) {
                         </SelectContent>
                     </Select>
                 </div>
-                <Button>
-                    <Plus className="mr-2 h-4 w-4" /> Add Product
-                </Button>
+                {action}
             </div>
 
             <div className="rounded-md border">
@@ -130,7 +129,7 @@ export function ProductTable({ onEdit }: ProductTableProps) {
                                             <DropdownMenuItem onClick={() => onEdit?.(product)}>Edit</DropdownMenuItem>
                                             <DropdownMenuItem
                                                 className="text-destructive"
-                                                onClick={() => deleteProduct(product.id)}
+                                                onClick={() => onDelete?.(product)}
                                             >
                                                 Delete
                                             </DropdownMenuItem>

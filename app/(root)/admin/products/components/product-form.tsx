@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useCategories, useCreateProduct, useUpdateProduct } from "../hooks/use-products";
-import { toast } from "sonner"; // Assuming sonner is used as per package.json
+import { toast } from "sonner";
 import { Product } from "../types";
 import { useEffect } from "react";
 import { DialogFooter } from "@/components/ui/dialog";
@@ -71,7 +71,7 @@ export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
                 }
             );
         } else {
-            createProduct(values, { // Values match type requirements
+            createProduct(values, {
                 onSuccess: () => {
                     toast.success("Product created successfully");
                     form.reset();

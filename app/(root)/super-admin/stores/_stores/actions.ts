@@ -9,6 +9,7 @@ import type {
   UpdateStoreInput,
 } from "./types";
 import { createClient } from "@/lib/supabase/server";
+import { createNotification } from "@/lib/actions/notifications";
 
 export async function getStores(
   filters?: { search?: string; status?: string }
@@ -120,33 +121,14 @@ export async function createStore(formData: CreateStoreInput): Promise<{
     return { success: false, message: storeError.message, data: {} };
   }
 
-  // Send store creation email
-  // try {
-  //   const loginUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/admin-login`;
-  //   const emailHtml = getWelcomeEmailTemplate({
-  //     storeName: name,
-  //     adminEmail,
-  //     adminPassword,
-  //     loginUrl,
-  //   });
-
-  //   const { data: emailData, error: emailError } = await resend.emails.send({
-  //     from: "Morganis <onboarding@resend.dev>", // TODO: Update with your verified domain
-  //     to: adminEmail,
-  //     subject: "Welcome to Morganis - Your Store is Ready!",
-  //     html: emailHtml,
-  //   });
-
-  //   if (emailError) {
-  //     console.error("Failed to send welcome email:", emailError);
-  //     return { success: false, message: emailError.message, data: {} }
-  //   } else {
-  //     console.log("Welcome email sent successfully:", emailData);
-  //   }
-  // } catch (err) {
-  //   console.error("Error sending welcome email:", err);
-  //   return { success: false, message: "Failed to send welcome email", data: {} }
-  // }
+  // Send store creation notification
+  await createNotification(
+    data.user.id,
+    "Store Created",
+    `Your store "${name}" has been successfully created by the Super Admin.`,
+    "store_created",
+    { storeId: storeData.id }
+  );
 
   return {
     success: true,
@@ -234,6 +216,15 @@ export async function toggleStoreStatus(
     console.error("Failed to update store status:", updateError);
     return { success: false, message: updateError.message };
   }
+
+  // Send status change notification
+  await createNotification(
+    store.admin_id,
+    "Store Status Changed",
+    `Your store "${store.name}" is now ${newStatus}.`,
+    "store_status_changed",
+    { storeId: store.id, status: newStatus }
+  );
 
   console.log(`Store ${store.id} status changed to ${newStatus}`);
   revalidatePath("/super-admin/stores");

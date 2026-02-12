@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchProducts, fetchCategories, createProduct, updateProduct, deleteProduct } from "../api";
+import { getProducts, getCategories, createProduct, updateProduct, deleteProduct } from "../actions";
+
 import { ProductFilters, Product } from "../types";
 
 export const PRODUCT_KEYS = {
@@ -12,14 +13,14 @@ export const PRODUCT_KEYS = {
 export const useProducts = (filters?: ProductFilters) => {
   return useQuery({
     queryKey: PRODUCT_KEYS.list(filters),
-    queryFn: () => fetchProducts(filters),
+    queryFn: () => getProducts(filters),
   });
 };
 
 export const useCategories = () => {
     return useQuery({
         queryKey: PRODUCT_KEYS.categories,
-        queryFn: fetchCategories,
+        queryFn: getCategories,
     });
 }
 
