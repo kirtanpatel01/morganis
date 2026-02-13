@@ -56,6 +56,7 @@ export function StoresTable({ stores }: { stores: Store[] }) {
                         <TableHead>Owner</TableHead>
                         <TableHead>GSTIN</TableHead>
                         <TableHead>State Code</TableHead>
+                        <TableHead>Tax Rate</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead className="w-[70px]">Actions</TableHead>
                     </TableRow>
@@ -67,6 +68,7 @@ export function StoresTable({ stores }: { stores: Store[] }) {
                             <TableCell>{store.owner_name || "-"}</TableCell>
                             <TableCell className="font-mono text-sm">{store.gstin}</TableCell>
                             <TableCell>{store.state_code}</TableCell>
+                            <TableCell>{store.tax_rate ?? 0}%</TableCell>
                             <TableCell>{getStatusBadge(store.status)}</TableCell>
                             <TableCell>
                                 <Dialog>

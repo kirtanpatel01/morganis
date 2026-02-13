@@ -32,6 +32,7 @@ export async function getStoreSettings() {
     address: store.address || "",
     stateCode: store.state_code || "",
     status: store.status || "pending",
+    taxRate: store.tax_rate || 0,
   };
 }
 
@@ -61,6 +62,7 @@ export async function updateStoreSettings(data: StoreSettingsValues) {
       gstin: data.gstin,
       address: data.address,
       state_code: data.stateCode,
+      tax_rate: data.taxRate,
     })
     .eq("id", store.id);
 

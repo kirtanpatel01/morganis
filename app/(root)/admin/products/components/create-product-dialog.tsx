@@ -16,9 +16,10 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 
 interface CreateProductDialogProps {
     storeStatus?: string;
+    taxRate: number;
 }
 
-export function CreateProductDialog({ storeStatus }: CreateProductDialogProps) {
+export function CreateProductDialog({ storeStatus, taxRate }: CreateProductDialogProps) {
   const [open, setOpen] = useState(false);
   const isActive = storeStatus === 'active';
 
@@ -50,7 +51,7 @@ export function CreateProductDialog({ storeStatus }: CreateProductDialogProps) {
             Add a new product to your inventory.
           </DialogDescription>
         </DialogHeader>
-        <ProductForm onSuccess={() => setOpen(false)} />
+        <ProductForm onSuccess={() => setOpen(false)} taxRate={taxRate} />
       </DialogContent>
     </Dialog>
   );

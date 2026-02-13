@@ -17,6 +17,7 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
+    FormDescription,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -37,9 +38,10 @@ import { DialogFooter } from "@/components/ui/dialog";
 interface ProductFormProps {
     initialData?: Product;
     onSuccess?: () => void;
+    taxRate: number;
 }
 
-export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
+export function ProductForm({ initialData, onSuccess, taxRate }: ProductFormProps) {
     const { data: categories } = useCategories();
     const { mutate: createProduct, isPending: isCreating } = useCreateProduct();
     const { mutate: updateProduct, isPending: isUpdating } = useUpdateProduct();
@@ -220,6 +222,11 @@ export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
                                         value={field.value}
                                     />
                                 </FormControl>
+                                {taxRate > 0 && (
+                                    <FormDescription className="mt-1 font-medium bg-muted p-2 rounded">
+                                        Total Price (Inc. {taxRate}% Tax): <span className="text-secondary-foreground font-semibold">₹{(((parseFloat(field.value?.toString() || "0") || 0) * (1 + taxRate / 100))).toFixed(2)}</span>
+                                    </FormDescription>
+                                )}
                                 <FormMessage />
                             </FormItem>
                         )}

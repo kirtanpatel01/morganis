@@ -11,7 +11,7 @@ export async function getPublicProducts() {
     
     const { data, error } = await supabase
         .from("products")
-        .select("*, category:categories(id, name), store:stores!inner(status, name)") 
+        .select("*, category:categories(id, name), store:stores!inner(status, name, tax_rate)") 
         .eq("stores.status", "active") // Filter by active stores
         .eq("status", "active") // Filter by active products
         .order("created_at", { ascending: false });
@@ -26,6 +26,7 @@ export async function getPublicProducts() {
         name: p.name,
         category: p.category?.name || "Uncategorized",
         storeName: p.store?.name || "Unknown Store",
+        taxRate: p.store?.tax_rate || 0,
         price: p.price,
         originalPrice: p.price * 1.2, // Mock original price, can be removed if not needed in UI
         rating: 4.5, // Mock

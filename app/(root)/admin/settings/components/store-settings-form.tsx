@@ -73,13 +73,14 @@ export function StoreSettingsForm({ initialData }: { initialData: StoreSettingsV
     const [isPending, setIsPending] = useState(false);
 
     const form = useForm<StoreSettingsValues>({
-        resolver: zodResolver(storeSettingsSchema),
+        resolver: zodResolver(storeSettingsSchema) as any,
         defaultValues: {
             name: initialData?.name || "",
             // Provide default if null?
             gstin: initialData?.gstin || "",
             address: initialData?.address || "",
             stateCode: initialData?.stateCode || "",
+            taxRate: initialData?.taxRate || 0,
         },
     });
 
@@ -89,7 +90,8 @@ export function StoreSettingsForm({ initialData }: { initialData: StoreSettingsV
                 name: initialData.name, 
                 gstin: initialData.gstin,
                 address: initialData.address,
-                stateCode: initialData.stateCode
+                stateCode: initialData.stateCode,
+                taxRate: initialData.taxRate
             });
         }
     }, [initialData, form]);
@@ -189,7 +191,26 @@ export function StoreSettingsForm({ initialData }: { initialData: StoreSettingsV
                                                 ))}
                                             </SelectContent>
                                         </Select>
-                                        <FormDescription>Two digit state code.</FormDescription>
+                                    </FormItem>
+                                )}
+                            />
+
+                            <FormField
+                                control={form.control}
+                                name="taxRate"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Tax Rate (%)</FormLabel>
+                                        <FormControl>
+                                            <Input
+                                                type="number" 
+                                                step="0.01" 
+                                                placeholder="0.00" 
+                                                {...field}
+                                                onChange={e => field.onChange(e.target.valueAsNumber)}
+                                            />
+                                        </FormControl>
+                                        <FormDescription>Applicable tax rate for all products.</FormDescription>
                                         <FormMessage />
                                     </FormItem>
                                 )}

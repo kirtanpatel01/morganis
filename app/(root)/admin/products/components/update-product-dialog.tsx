@@ -14,12 +14,14 @@ interface UpdateProductDialogProps {
   product: Product | undefined;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  taxRate: number;
 }
 
 export function UpdateProductDialog({
   product,
   open,
   onOpenChange,
+  taxRate,
 }: UpdateProductDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -34,6 +36,7 @@ export function UpdateProductDialog({
           <ProductForm
             initialData={product}
             onSuccess={() => onOpenChange(false)}
+            taxRate={taxRate}
           />
         )}
       </DialogContent>

@@ -19,6 +19,7 @@ export interface Store {
   status: StoreStatus
   admin_id: string
   owner_name?: string
+  tax_rate?: number
 }
 
 // Pagination types

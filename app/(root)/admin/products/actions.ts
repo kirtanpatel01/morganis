@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 
 // --- Products ---
 
-export async function getStoreStatus(): Promise<{ id: string; status: string } | null> {
+export async function getStoreStatus(): Promise<{ id: string; status: string; tax_rate: number } | null> {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
@@ -14,13 +14,13 @@ export async function getStoreStatus(): Promise<{ id: string; status: string } |
 
     const { data: store, error } = await supabase
         .from("stores")
-        .select("id, status")
+        .select("id, status, tax_rate")
         .eq("admin_id", user.id)
         .single();
 
     if (error || !store) return null;
 
-    return store;
+    return { ...store, tax_rate: store.tax_rate || 0 };
 }
 
 export async function getProducts(filters?: ProductFilters): Promise<{ data: Product[]; total: number }> {

@@ -12,6 +12,7 @@ export default async function ProductsPage() {
       initialCategories={categories}
       initialStoreStatus={store?.status || 'pending'}
       storeId={store?.id}
+      taxRate={store?.tax_rate || 0}
     />
   );
 }

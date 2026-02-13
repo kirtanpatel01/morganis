@@ -13,6 +13,7 @@ export interface Product {
   reviews: number
   inStock: boolean
   isNew?: boolean
+  taxRate?: number
 }
 
 export const products: Product[] = [

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetFooter,
   SheetHeader,
   SheetTitle,
@@ -26,6 +27,11 @@ export function CartSidebar() {
   if (!mounted) return null
 
   const cartSubtotal = subtotal()
+  const cartTax = items.reduce((acc, item) => {
+      const rate = item.taxRate || 0;
+      return acc + (item.price * item.quantity * rate / 100);
+  }, 0);
+  const cartTotal = cartSubtotal + cartTax;
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -34,10 +40,10 @@ export function CartSidebar() {
           <SheetTitle className="flex items-center gap-2">
             <IconShoppingCart className="h-5 w-5" />
             Current Order
-            <span className="text-sm font-normal text-muted-foreground ml-auto">
-                {items.reduce((acc, item) => acc + item.quantity, 0)} items
-            </span>
           </SheetTitle>
+          <SheetDescription>
+            {items.reduce((acc, item) => acc + item.quantity, 0)} items selected
+          </SheetDescription>
         </SheetHeader>
         
         <ScrollArea className="flex-1">
@@ -63,6 +69,7 @@ export function CartSidebar() {
                              <div className="text-xs text-muted-foreground">
                                 ${item.price} / {item.unit}
                                 {item.unit_quantity && Number(item.unit_quantity) > 1 && ` (${item.unit_quantity} pcs)`}
+                                {item.taxRate && item.taxRate > 0 && <span className="ml-1 text-xs text-muted-foreground">(Tax: {item.taxRate}%)</span>}
                              </div>
                              
                             <div className="flex items-center gap-2">
@@ -96,17 +103,17 @@ export function CartSidebar() {
             <div className="border-t bg-muted/20 p-4 space-y-4">
                 <div className="space-y-1.5">
                     <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Subtotal</span>
+                        <span className="text-muted-foreground">Subtotal ({items.reduce((acc, item) => acc + item.quantity, 0)} items)</span>
                         <span>${cartSubtotal.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Tax (10%)</span>
-                        <span>${(cartSubtotal * 0.1).toFixed(2)}</span>
+                        <span className="text-muted-foreground">Tax</span>
+                        <span>${cartTax.toFixed(2)}</span>
                     </div>
                      <Separator className="my-2" />
                     <div className="flex justify-between font-bold text-lg">
                         <span>Total</span>
-                        <span>${(cartSubtotal * 1.1).toFixed(2)}</span>
+                        <span>${cartTotal.toFixed(2)}</span>
                     </div>
                 </div>
 

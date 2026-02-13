@@ -49,6 +49,7 @@
     "@types/recharts": "^1.8.29",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "supabase": "^2.76.8",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

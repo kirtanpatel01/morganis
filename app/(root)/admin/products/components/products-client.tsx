@@ -17,9 +17,10 @@ interface ProductsClientProps {
   initialCategories: Category[];
   initialStoreStatus: string;
   storeId?: string;
+  taxRate: number;
 }
 
-export function ProductsClient({ initialProducts, initialCategories, initialStoreStatus, storeId }: ProductsClientProps) {
+export function ProductsClient({ initialProducts, initialCategories, initialStoreStatus, storeId, taxRate }: ProductsClientProps) {
   const [editingProduct, setEditingProduct] = useState<Product | undefined>(undefined);
   const [deletingProduct, setDeletingProduct] = useState<Product | undefined>(undefined);
   const [storeStatus, setStoreStatus] = useState(initialStoreStatus);
@@ -97,7 +98,7 @@ export function ProductsClient({ initialProducts, initialCategories, initialStor
           <ProductTable 
             initialData={initialProducts}
             initialCategories={initialCategories}
-            action={<CreateProductDialog storeStatus={storeStatus} />}
+            action={<CreateProductDialog storeStatus={storeStatus} taxRate={taxRate} />}
             onEdit={(product) => setEditingProduct(product)}
             onDelete={(product) => setDeletingProduct(product)}
             storeStatus={storeStatus}
@@ -112,6 +113,7 @@ export function ProductsClient({ initialProducts, initialCategories, initialStor
         product={editingProduct}
         open={!!editingProduct}
         onOpenChange={(open) => !open && setEditingProduct(undefined)}
+        taxRate={taxRate}
       />
 
       <DeleteProductDialog 
