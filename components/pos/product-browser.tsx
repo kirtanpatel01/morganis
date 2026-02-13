@@ -91,7 +91,7 @@ export function ProductBrowser({ initialProducts, initialCategories }: ProductBr
              <aside className="hidden w-64 flex-col border-r bg-background md:flex overflow-y-auto">
                 <SidebarWithProps className="h-full" />
              </aside>
-             <main className="relative flex flex-1 flex-col h-full bg-muted/50 overflow-hidden">
+             <main className="relative flex flex-1 flex-col h-full overflow-hidden">
                 <div className="flex flex-col md:flex-row items-center justify-between px-4 py-3 bg-background border-b gap-3 md:gap-4">
                     <div className="relative w-full md:flex-1 md:max-w-md">
                         <IconSearch className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -135,7 +135,7 @@ export function ProductBrowser({ initialProducts, initialCategories }: ProductBr
                 
                 <div className="flex-1 overflow-y-auto">
                     <div className="p-4 lg:p-6">
-                        <div className="pt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+                        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
                             {filteredProducts.map((product: any) => (
                                 <ProductCard key={product.id} product={product} />
                             ))}
@@ -155,7 +155,6 @@ export function ProductBrowser({ initialProducts, initialCategories }: ProductBr
                             </div>
                         )}
                     </div>
-                    <PosFooter />
                 </div>
              </main>
         </div>

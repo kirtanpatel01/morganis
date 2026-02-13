@@ -6,6 +6,8 @@ export interface Product {
   description?: string;
   price: number;
   stock: number;
+  unit: string;
+  unit_quantity: number;
   status: 'active' | 'draft' | 'archived';
   created_at: string;
   updated_at: string;

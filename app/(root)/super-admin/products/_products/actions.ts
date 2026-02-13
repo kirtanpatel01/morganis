@@ -73,6 +73,8 @@ export async function getProducts(filters?: ProductFilters): Promise<Product[]> 
         categoryName: p.category?.name || "Uncategorized",
         storeId: p.store_id,
         storeName: p.store?.name || "Unknown Store",
+        unit: p.unit || "pcs",
+        unit_quantity: p.unit_quantity || 1,
         isAvailable: p.status === "active" && p.stock > 0,
         createdAt: p.created_at
     }))
@@ -118,6 +120,8 @@ export async function getAllStoreMenus(): Promise<StoreMenu[]> {
              categoryName: p.category?.name || "Uncategorized",
              storeId: p.store_id,
              storeName: store.name,
+             unit: p.unit || "pcs",
+             unit_quantity: p.unit_quantity || 1,
              isAvailable: p.status === "active" && p.stock > 0,
              createdAt: p.created_at
         }))

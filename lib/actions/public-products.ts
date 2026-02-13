@@ -31,7 +31,9 @@ export async function getPublicProducts() {
         reviews: 0, // Mock
         inStock: p.stock > 0,
         isNew: new Date(p.created_at) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // New if < 7 days
-        description: p.description
+        description: p.description,
+        unit: p.unit || "pcs",
+        unit_quantity: p.unit_quantity || 1
     }));
 }
 

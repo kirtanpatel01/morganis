@@ -49,7 +49,11 @@ export function ProductsTable({ products }: ProductsTableProps) {
                             </TableCell>
                             <TableCell className="text-sm">{product.storeName}</TableCell>
                             <TableCell className="font-medium">
-                                {formatPrice(product.price)}
+                                {formatPrice(product.price)} 
+                                <span className="text-xs text-muted-foreground">
+                                    / {product.unit || 'unit'}
+                                    {product.unit_quantity && product.unit_quantity > 1 && ` (${product.unit_quantity} pcs)`}
+                                </span>
                             </TableCell>
                             <TableCell>
                                 {product.isAvailable ? (

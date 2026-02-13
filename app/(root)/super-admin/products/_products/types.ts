@@ -16,6 +16,8 @@ export interface Product {
   storeId: string
   storeName: string
   isAvailable: boolean
+  unit: string
+  unit_quantity: number
   createdAt: string
 }
 

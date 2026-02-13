@@ -3,6 +3,13 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { productSchema, ProductFormValues } from "./product-schema";
+import { IconInfoCircle } from "@tabler/icons-react";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
     Form,
     FormControl,
@@ -38,12 +45,14 @@ export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
     const { mutate: updateProduct, isPending: isUpdating } = useUpdateProduct();
 
     const form = useForm<ProductFormValues>({
-        resolver: zodResolver(productSchema),
+        resolver: zodResolver(productSchema) as any, // Cast to any to resolve strictly typed resolver mismatch with default values
         defaultValues: {
             name: initialData?.name || "",
             description: initialData?.description || "",
             price: initialData?.price || 0,
             stock: initialData?.stock || 0,
+            unit: initialData?.unit || "pcs",
+            unit_quantity: initialData?.unit_quantity || 1,
             category_id: initialData?.category_id || "",
             status: initialData?.status || "active",
         },
@@ -55,17 +64,21 @@ export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
             form.reset({
                 name: initialData.name,
                 description: initialData.description || "",
-                price: initialData.price,
-                stock: initialData.stock,
-                category_id: initialData.category_id || "",
-                status: initialData.status,
+                price: initialData?.price || 0.00,
+                stock: initialData?.stock || 0,
+                unit: initialData?.unit || "pcs",
+                unit_quantity: initialData?.unit_quantity || 1,
+                category_id: initialData?.category_id || "",
+                status: initialData?.status || "active",
             });
         } else {
              form.reset({
                 name: "",
                 description: "",
-                price: 0,
+                price: 0.00,
                 stock: 0,
+                unit: "pcs",
+                unit_quantity: 1,
                 category_id: "",
                 status: "active",
             });
@@ -107,9 +120,23 @@ export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
                     name="name"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Name</FormLabel>
+                            <FormLabel>Name <span className="text-destructive">*</span></FormLabel>
                             <FormControl>
                                 <Input placeholder="Product Name" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+
+                <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Description <span className="text-muted-foreground text-xs font-normal ml-1">(Optional)</span></FormLabel>
+                            <FormControl>
+                                <Textarea placeholder="Product Description" {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -119,50 +146,10 @@ export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
                 <div className="grid grid-cols-2 gap-4">
                     <FormField
                         control={form.control}
-                        name="price"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Price</FormLabel>
-                                <FormControl>
-                                    <Input
-                                        type="number"
-                                        step="0.01"
-                                        {...field}
-                                        onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                                        value={field.value}
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="stock"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Stock</FormLabel>
-                                <FormControl>
-                                    <Input
-                                        type="number"
-                                        {...field}
-                                        onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                                        value={field.value}
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                    <FormField
-                        control={form.control}
                         name="category_id"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Category</FormLabel>
+                                <FormLabel>Category <span className="text-destructive">*</span></FormLabel>
                                 <Select onValueChange={field.onChange} value={field.value}>
                                     <FormControl>
                                         <SelectTrigger>
@@ -186,7 +173,7 @@ export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
                         name="status"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Status</FormLabel>
+                                <FormLabel>Status <span className="text-destructive">*</span></FormLabel>
                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                     <FormControl>
                                         <SelectTrigger>
@@ -205,19 +192,126 @@ export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
                     />
                 </div>
 
-                <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Description</FormLabel>
-                            <FormControl>
-                                <Textarea placeholder="Product Description" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                        control={form.control}
+                        name="price"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className="flex items-center gap-2">
+                                    <span>Price <span className="text-destructive">*</span></span>
+                                    <TooltipProvider>
+                                        <Tooltip>
+                                            <TooltipTrigger type="button">
+                                                <IconInfoCircle className="h-4 w-4 text-muted-foreground" />
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                <p>The selling price for one unit of the product.</p>
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    </TooltipProvider>
+                                </FormLabel>
+                                <FormControl>
+                                    <Input
+                                        type="number"
+                                        step="0.01"
+                                        {...field}
+                                        onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                                        value={field.value}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="unit"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className="flex items-center gap-2">
+                                    <span>Unit <span className="text-destructive">*</span></span>
+                                    <TooltipProvider>
+                                        <Tooltip>
+                                            <TooltipTrigger type="button">
+                                                <IconInfoCircle className="h-4 w-4 text-muted-foreground" />
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                <p>The unit of measurement (e.g., kg, pcs, plate).</p>
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    </TooltipProvider>
+                                </FormLabel>
+                                <FormControl>
+                                    <Input placeholder="e.g. pcs, kg, liter" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="unit_quantity"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className="flex items-center gap-2">
+                                    <span>Quantity per Unit <span className="text-muted-foreground text-xs font-normal ml-1">(Optional)</span></span>
+                                    <TooltipProvider>
+                                        <Tooltip>
+                                            <TooltipTrigger type="button">
+                                                <IconInfoCircle className="h-4 w-4 text-muted-foreground" />
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                <p>Number of items in one unit (e.g., 6 pcs per plate).</p>
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    </TooltipProvider>
+                                </FormLabel>
+                                <FormControl>
+                                    <Input 
+                                        type="number" 
+                                        min="1"
+                                        placeholder="1 (Default)" 
+                                        {...field}
+                                        onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                                        value={isNaN(field.value) ? '' : field.value}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="stock"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel className="flex items-center gap-2">
+                                    <span>Stock <span className="text-destructive">*</span></span>
+                                    <TooltipProvider>
+                                        <Tooltip>
+                                            <TooltipTrigger type="button">
+                                                <IconInfoCircle className="h-4 w-4 text-muted-foreground" />
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                <p>Total number of units available in inventory.</p>
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    </TooltipProvider>
+                                </FormLabel>
+                                <FormControl>
+                                    <Input
+                                        type="number"
+                                        {...field}
+                                        onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                                        value={field.value}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </div>
 
                 <DialogFooter className="pt-4">
                     <Button type="submit" disabled={isLoading} className="w-full sm:w-auto">
