@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { getPublicProducts, getPublicCategories } from "@/lib/actions/public-products";
+import { getPublicProducts, getPublicCategories, getPublicStores } from "@/lib/actions/public-products";
 import { createClient } from "@/lib/supabase/client";
 import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -9,9 +9,10 @@ import { useQueryClient } from "@tanstack/react-query";
 interface UsePublicProductsOptions {
     initialProducts?: any[];
     initialCategories?: string[];
+    initialStores?: string[];
 }
 
-export const usePublicProducts = ({ initialProducts, initialCategories }: UsePublicProductsOptions = {}) => {
+export const usePublicProducts = ({ initialProducts, initialCategories, initialStores }: UsePublicProductsOptions = {}) => {
     const queryClient = useQueryClient();
     const supabase = createClient();
 
@@ -71,5 +72,11 @@ export const usePublicProducts = ({ initialProducts, initialCategories }: UsePub
         initialData: initialCategories
     });
 
-    return { products, categories };
+    const { data: stores } = useQuery({
+        queryKey: ['public', 'stores'],
+        queryFn: getPublicStores,
+        initialData: initialStores
+    });
+
+    return { products, categories, stores };
 };

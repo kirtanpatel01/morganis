@@ -3,6 +3,7 @@ export interface Product {
   id: string
   name: string
   category: string
+  storeName?: string
   unit?: string
   unit_quantity?: number
   price: number

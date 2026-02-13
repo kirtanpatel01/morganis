@@ -15,7 +15,19 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
+import { useCartStore } from "./cart-store"
+import { useEffect, useState } from "react"
+
 export function PosNavbar() {
+  const { toggleCart, items } = useCartStore()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  const itemCount = mounted ? items.reduce((acc, item) => acc + item.quantity, 0) : 0
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background px-4">
       <div className="flex h-14 items-center">
@@ -33,9 +45,11 @@ export function PosNavbar() {
           </div>
           <nav className="flex items-center gap-2">
             <ModeToggle />
-            <Button variant="ghost" size="icon" className="relative" aria-label="Cart">
+            <Button variant="ghost" size="icon" className="relative" aria-label="Cart" onClick={toggleCart}>
               <IconShoppingCart className="h-5 w-5" />
-              <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-600"></span>
+              {itemCount > 0 && (
+                <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-600 ring-2 ring-background"></span>
+              )}
             </Button>
              <DropdownMenu>
               <DropdownMenuTrigger asChild>

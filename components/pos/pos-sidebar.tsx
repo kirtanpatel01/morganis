@@ -22,6 +22,9 @@ interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
     onIsNewChange?: (checked: boolean) => void;
     onReset?: () => void;
     categories?: string[];
+    stores?: string[];
+    selectedStores?: string[];
+    onStoreChange?: (store: string) => void;
 }
 
 export function PosSidebar({
@@ -35,7 +38,10 @@ export function PosSidebar({
     isNew = false,
     onIsNewChange,
     onReset,
-    categories = []
+    categories = [],
+    stores = [],
+    selectedStores = [],
+    onStoreChange
 }: SidebarProps) {
     const [localPriceRange, setLocalPriceRange] = React.useState(priceRange)
 
@@ -60,8 +66,13 @@ export function PosSidebar({
         onInStockChange?.(checked);
     }
 
+
     const handleIsNewToggle = (checked: boolean) => {
         onIsNewChange?.(checked);
+    }
+
+    const handleStoreToggle = (store: string) => {
+        onStoreChange?.(store);
     }
 
 
@@ -98,6 +109,27 @@ export function PosSidebar({
                                 <p className="text-sm text-muted-foreground px-2">No categories found</p>
                             )}
                         </div>
+                    </div>
+                </div>
+
+                <div className="">
+                    <h3 className="mb-2 px-4 text-sm font-medium text-muted-foreground mt-4">Stores</h3>
+                    <div className="px-4 space-y-2">
+                        {stores.map((store) => (
+                            <div key={store} className="flex items-center space-x-2">
+                                <Checkbox
+                                    id={`store-${store}`}
+                                    checked={selectedStores.includes(store)}
+                                    onCheckedChange={() => handleStoreToggle(store)}
+                                />
+                                <Label htmlFor={`store-${store}`} className="text-sm font-normal cursor-pointer leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                    {store}
+                                </Label>
+                            </div>
+                        ))}
+                         {stores.length === 0 && (
+                            <p className="text-sm text-muted-foreground px-2">No stores found</p>
+                        )}
                     </div>
                 </div>
 

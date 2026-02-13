@@ -11,25 +11,28 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { PosFooter } from "./pos-footer"
 import { usePublicProducts } from "@/lib/hooks/use-public-products"
 
-interface ProductBrowserProps {
+    interface ProductBrowserProps {
     initialProducts: any[];
     initialCategories: string[];
+    initialStores: string[];
 }
 
-export function ProductBrowser({ initialProducts, initialCategories }: ProductBrowserProps) {
+export function ProductBrowser({ initialProducts, initialCategories, initialStores }: ProductBrowserProps) {
     const [searchQuery, setSearchQuery] = useState("")
     const [sortOption, setSortOption] = useState("featured")
     
     // Filter states
     const [selectedCategories, setSelectedCategories] = useState<string[]>([])
+    const [selectedStores, setSelectedStores] = useState<string[]>([])
     const [priceRange, setPriceRange] = useState<number[]>([0, 1000])
     const [inStock, setInStock] = useState(false)
     const [isNew, setIsNew] = useState(false)
 
     // Realtime data
-    const { products, categories } = usePublicProducts({
+    const { products, categories, stores } = usePublicProducts({
         initialProducts,
-        initialCategories
+        initialCategories,
+        initialStores
     });
 
     // Handlers
@@ -41,10 +44,19 @@ export function ProductBrowser({ initialProducts, initialCategories }: ProductBr
         )
     }
 
+    const handleStoreChange = (store: string) => {
+        setSelectedStores(prev => 
+            prev.includes(store) 
+                ? prev.filter(s => s !== store)
+                : [...prev, store]
+        )
+    }
+
     const handleReset = () => {
         setSearchQuery("")
         setSortOption("featured")
         setSelectedCategories([])
+        setSelectedStores([])
         setPriceRange([0, 1000])
         setInStock(false)
         setIsNew(false)
@@ -52,13 +64,17 @@ export function ProductBrowser({ initialProducts, initialCategories }: ProductBr
 
     const filteredProducts = (products || []).filter((product: any) => {
         const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            product.category.toLowerCase().includes(searchQuery.toLowerCase())
+                            product.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            (product.storeName && product.storeName.toLowerCase().includes(searchQuery.toLowerCase()))
+        
         const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(product.category)
+        const matchesStore = selectedStores.length === 0 || (product.storeName && selectedStores.includes(product.storeName))
+        
         const matchesPrice = product.price >= priceRange[0] && product.price <= priceRange[1]
         const matchesStock = !inStock || product.inStock
         const matchesNew = !isNew || product.isNew
 
-        return matchesSearch && matchesCategory && matchesPrice && matchesStock && matchesNew
+        return matchesSearch && matchesCategory && matchesStore && matchesPrice && matchesStock && matchesNew
     }).sort((a: any, b: any) => {
         if (sortOption === "price-asc") return a.price - b.price
         if (sortOption === "price-desc") return b.price - a.price
@@ -83,6 +99,9 @@ export function ProductBrowser({ initialProducts, initialCategories }: ProductBr
             onIsNewChange={setIsNew}
             onReset={handleReset}
             categories={categories || []}
+            stores={stores || []}
+            selectedStores={selectedStores}
+            onStoreChange={handleStoreChange}
         />
     )
 

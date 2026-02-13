@@ -11,7 +11,7 @@ export async function getPublicProducts() {
     
     const { data, error } = await supabase
         .from("products")
-        .select("*, category:categories(id, name), store:stores!inner(status)") 
+        .select("*, category:categories(id, name), store:stores!inner(status, name)") 
         .eq("stores.status", "active") // Filter by active stores
         .eq("status", "active") // Filter by active products
         .order("created_at", { ascending: false });
@@ -25,6 +25,7 @@ export async function getPublicProducts() {
         id: p.id,
         name: p.name,
         category: p.category?.name || "Uncategorized",
+        storeName: p.store?.name || "Unknown Store",
         price: p.price,
         originalPrice: p.price * 1.2, // Mock original price, can be removed if not needed in UI
         rating: 4.5, // Mock
@@ -52,4 +53,18 @@ export async function getPublicCategories() {
     // Return unique category names
     const names = data.map((c: any) => c.name);
     return ["All", ...Array.from(new Set(names))];
+}
+
+export async function getPublicStores() {
+    const supabase = await createClient();
+    
+    const { data, error } = await supabase
+        .from("stores")
+        .select("name")
+        .eq("status", "active")
+        .order("name");
+        
+    if (error) return [];
+    
+    return ["All", ...data.map((s: any) => s.name)];
 }
