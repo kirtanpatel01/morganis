@@ -25,6 +25,7 @@ interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
     stores?: string[];
     selectedStores?: string[];
     onStoreChange?: (store: string) => void;
+    showStoreFilter?: boolean;
 }
 
 export function PosSidebar({
@@ -41,7 +42,8 @@ export function PosSidebar({
     categories = [],
     stores = [],
     selectedStores = [],
-    onStoreChange
+    onStoreChange,
+    showStoreFilter = true
 }: SidebarProps) {
     const [localPriceRange, setLocalPriceRange] = React.useState(priceRange)
 
@@ -112,26 +114,28 @@ export function PosSidebar({
                     </div>
                 </div>
 
-                <div className="">
-                    <h3 className="mb-2 px-4 text-sm font-medium text-muted-foreground mt-4">Stores</h3>
-                    <div className="px-4 space-y-2">
-                        {stores.map((store) => (
-                            <div key={store} className="flex items-center space-x-2">
-                                <Checkbox
-                                    id={`store-${store}`}
-                                    checked={selectedStores.includes(store)}
-                                    onCheckedChange={() => handleStoreToggle(store)}
-                                />
-                                <Label htmlFor={`store-${store}`} className="text-sm font-normal cursor-pointer leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                                    {store}
-                                </Label>
-                            </div>
-                        ))}
-                         {stores.length === 0 && (
-                            <p className="text-sm text-muted-foreground px-2">No stores found</p>
-                        )}
+                {showStoreFilter && (
+                    <div className="">
+                        <h3 className="mb-2 px-4 text-sm font-medium text-muted-foreground mt-4">Stores</h3>
+                        <div className="px-4 space-y-2">
+                            {stores.map((store) => (
+                                <div key={store} className="flex items-center space-x-2">
+                                    <Checkbox
+                                        id={`store-${store}`}
+                                        checked={selectedStores.includes(store)}
+                                        onCheckedChange={() => handleStoreToggle(store)}
+                                    />
+                                    <Label htmlFor={`store-${store}`} className="text-sm font-normal cursor-pointer leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                        {store}
+                                    </Label>
+                                </div>
+                            ))}
+                             {stores.length === 0 && (
+                                <p className="text-sm text-muted-foreground px-2">No stores found</p>
+                            )}
+                        </div>
                     </div>
-                </div>
+                )}
 
                 <div className="px-3 py-2">
                     <h3 className="mb-2 px-4 text-sm font-medium text-muted-foreground">Price Range</h3>

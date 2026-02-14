@@ -2,8 +2,10 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { IconShoppingCart } from "@tabler/icons-react"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { IconSearch, IconShoppingCart } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { ModeToggle } from "@/components/mode-toggle"
 import {
   DropdownMenu,
@@ -21,12 +23,29 @@ import { useEffect, useState } from "react"
 export function PosNavbar() {
   const { toggleCart, items } = useCartStore()
   const [mounted, setMounted] = useState(false)
+  const pathname = usePathname()
+  const router = useRouter()
+  const searchParams = useSearchParams()
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
   const itemCount = mounted ? items.reduce((acc, item) => acc + item.quantity, 0) : 0
+
+  // Search Logic
+  const handleSearch = (term: string) => {
+    const params = new URLSearchParams(searchParams)
+    if (term) {
+      params.set("search", term)
+    } else {
+      params.delete("search")
+    }
+    // Shallow update
+    router.replace(`/?${params.toString()}`, { scroll: false })
+  }
+
+  const isRoot = pathname === "/"
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background px-4">
@@ -41,7 +60,17 @@ export function PosNavbar() {
         
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
           <div className="w-full flex-1 md:w-auto md:flex-none">
-            {/* Search replaced by page-specific functionality or kept global if needed */}
+            {isRoot && (
+              <div className="relative w-full md:w-64 lg:w-80">
+                <IconSearch className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search stores..."
+                  className="pl-8 h-9"
+                  defaultValue={searchParams.get("search")?.toString()}
+                  onChange={(e) => handleSearch(e.target.value)}
+                />
+              </div>
+            )}
           </div>
           <nav className="flex items-center gap-2">
             <ModeToggle />

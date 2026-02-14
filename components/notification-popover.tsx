@@ -3,22 +3,22 @@
 import * as React from "react"
 import { Bell } from "lucide-react"
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
+import { Button } from "./ui/button"
 import {
     Popover,
     PopoverContent,
     PopoverTrigger,
-} from "@/components/ui/popover"
-import { Badge } from "@/components/ui/badge"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Separator } from "@/components/ui/separator"
-import { cn } from "@/lib/utils"
-import { useNotifications } from "@/hooks/use-notifications"
+} from "./ui/popover"
+import { Badge } from "./ui/badge"
+import { ScrollArea } from "./ui/scroll-area"
+import { Separator } from "./ui/separator"
+import { cn } from "../lib/utils"
+import { useNotifications } from "../hooks/use-notifications"
 import {
     formatNotificationTime,
     getNotificationIcon,
-} from "@/lib/notifications"
-import type { Notification } from "@/types/notifications"
+} from "../lib/notifications"
+import type { Notification } from "../types/notifications"
 
 export function NotificationPopover() {
     const { notifications, isLoading, markAsRead, markAllAsRead } = useNotifications()

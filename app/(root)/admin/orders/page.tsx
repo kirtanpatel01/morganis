@@ -1,17 +1,30 @@
-"use client";
+import { getOrders } from "./actions"
+import { OrdersClient } from "./components/orders-client"
+import { Separator } from "@/components/ui/separator"
 
-import { OrdersTable } from "./components/orders-table";
+export default async function OrdersPage() {
+  const { orders, error } = await getOrders()
 
-export default function OrdersPage() {
+  if (error) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center p-8 text-destructive">
+        Error loading orders: {error}
+      </div>
+    )
+  }
+
   return (
-    <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+    <div className="h-full flex-1 flex-col space-y-8 p-4 md:p-8">
       <div className="flex items-center justify-between space-y-2">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Orders</h2>
-          <p className="text-muted-foreground">Manage and track all customer orders.</p>
+          <h2 className="text-2xl font-bold tracking-tight">Order Management</h2>
+          <p className="text-muted-foreground">
+            View and manage real-time orders from customers.
+          </p>
         </div>
       </div>
-      <OrdersTable />
+      <Separator />
+      <OrdersClient initialData={orders || []} />
     </div>
-  );
+  )
 }

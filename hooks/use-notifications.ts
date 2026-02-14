@@ -1,15 +1,15 @@
 "use client";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { getNotifications, markNotificationAsRead, markAllNotificationsAsRead } from "@/lib/actions/notifications";
+import { getNotifications, markNotificationAsRead, markAllNotificationsAsRead } from "../lib/actions/notifications";
 import { createClient } from "@/lib/supabase/client";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { toast } from "sonner";
-import type { Notification } from "@/types/notifications";
+import type { Notification } from "../types/notifications";
 
 export function useNotifications() {
   const queryClient = useQueryClient();
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
   const { data: notifications = [], isLoading } = useQuery({
     queryKey: ["notifications"],
@@ -22,20 +22,14 @@ export function useNotifications() {
   });
 
   useEffect(() => {
-    let channel: any;
+    let isApplied = true;
+    let channel: ReturnType<typeof supabase.channel> | null = null;
 
     const setupRealtime = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user || !isApplied) return;
 
-      // We rely on RLS to filter notifications for the current user
-      // so we can subscribe to the notifications table directly.
-      // However, for efficiency, Supabase Realtime *client* filtering is often preferred if RLS isn't strict enough for "broadcast but hidden", 
-      // but here we have strict RLS.
-      // The issue might be that postgres_changes needs a subscriber (user) context if RLS is on?
-      // Yes, 'createClient' in browser should have the user session.
-      
-      console.log("Setting up realtime subscription for user:", user.id);
+      console.log("[Notifications] Setting up realtime for user:", user.id);
 
       channel = supabase
         .channel(`user-notifications`)
@@ -45,13 +39,10 @@ export function useNotifications() {
             event: "INSERT",
             schema: "public",
             table: "notifications",
-            // Remove filter to see if it receives *anything* (RLS should filter it anyway)
-            // Or try filtering by user_id explicitly again but ensure type match.
-            // UUIDs usually need quotes in filters? No, eq.uuid is fine.
             filter: `user_id=eq.${user.id}`,
           },
-          (payload) => {
-            console.log("Realtime payload received:", payload);
+          (payload: { [key: string]: any }) => {
+            console.log("[Notifications] Payload received:", payload);
             const newNotification = payload.new as Notification;
 
             queryClient.setQueryData<Notification[]>(["notifications"], (old) => {
@@ -65,15 +56,17 @@ export function useNotifications() {
             });
           }
         )
-        .subscribe((status, err) => {
-            console.log("Subscription status:", status, err);
+        .subscribe((status: string, err?: Error) => {
+          console.log("[Notifications] Subscription status:", status, err);
         });
     };
 
     setupRealtime();
 
     return () => {
+      isApplied = false;
       if (channel) {
+        console.log("[Notifications] Cleaning up subscription");
         supabase.removeChannel(channel);
       }
     };

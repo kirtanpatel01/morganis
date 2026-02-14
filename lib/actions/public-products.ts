@@ -35,7 +35,8 @@ export async function getPublicProducts() {
         isNew: new Date(p.created_at) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // New if < 7 days
         description: p.description,
         unit: p.unit || "pcs",
-        unit_quantity: p.unit_quantity || 1
+        unit_quantity: p.unit_quantity || 1,
+        image: "/placeholder-product.jpg"
     }));
 }
 
@@ -68,4 +69,69 @@ export async function getPublicStores() {
     if (error) return [];
     
     return ["All", ...data.map((s: any) => s.name)];
+}
+
+export async function getStoreProducts(storeId: string) {
+    const supabase = await createClient();
+    
+    const { data, error } = await supabase
+        .from("products")
+        .select("*, category:categories(id, name), store:stores!inner(status, name, tax_rate)") 
+        .eq("store_id", storeId)
+        .eq("stores.status", "active")
+        .eq("status", "active")
+        .order("created_at", { ascending: false });
+
+    if (error) {
+        console.error("Error fetching store products:", error);
+        return [];
+    }
+
+    return (data || []).map(p => ({
+        id: p.id,
+        name: p.name,
+        category: p.category?.name || "Uncategorized",
+        storeName: p.store?.name || "Unknown Store",
+        taxRate: p.store?.tax_rate || 0,
+        price: p.price,
+        originalPrice: p.price * 1.2,
+        rating: 4.5,
+        reviews: 0,
+        inStock: p.stock > 0,
+        isNew: new Date(p.created_at) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+        description: p.description,
+        unit: p.unit || "pcs",
+        unit_quantity: p.unit_quantity || 1,
+        image: "/placeholder-product.jpg"
+    }));
+}
+
+export async function getStoreCategories(storeId: string) {
+    const supabase = await createClient();
+    
+    // Fetch categories for THIS store
+    const { data, error } = await supabase
+        .from("categories")
+        .select("name")
+        .eq("store_id", storeId)
+        .order("name");
+    
+    if (error) return [];
+    
+    // Return unique category names
+    const names = data.map((c: any) => c.name);
+    return [...Array.from(new Set(names))];
+}
+
+export async function getStoreDetails(storeId: string) {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+        .from("stores")
+        .select("*")
+        .eq("id", storeId)
+        .eq("status", "active")
+        .single();
+        
+    if (error) return null;
+    return data;
 }
