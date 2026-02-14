@@ -18,7 +18,7 @@ export async function createNotification(
   title: string,
   message: string,
   type: NotificationType,
-  data?: any
+  data?: Record<string, unknown>
 ) {
   const supabase = await createClient();
 

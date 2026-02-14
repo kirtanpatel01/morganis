@@ -22,7 +22,7 @@ export default function SignupSuccessPage() {
           </div>
           <CardTitle className="text-2xl font-bold">Check your email</CardTitle>
           <CardDescription className="text-base mt-2">
-            We've sent a verification link to your email address. 
+            We&apos;ve sent a verification link to your email address. 
             <br />
             Please check your inbox (and spam folder) to verify your account.
           </CardDescription>

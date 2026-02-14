@@ -9,14 +9,14 @@ interface StatusPieChartProps {
     data: StatusBreakdown[]
 }
 
-const CustomTooltip = ({ active, payload }: any) => {
+const CustomTooltip = ({ active, payload }: TooltipProps<number, string>) => {
     if (active && payload && payload.length) {
         return (
             <div className="bg-white dark:bg-zinc-900 border rounded-lg p-3 shadow-xl ring-1 ring-black/5">
                 <p className="text-sm font-bold text-zinc-900 dark:text-zinc-100 mb-1">{payload[0].name}</p>
                 <div className="flex items-center justify-between gap-4">
                     <span className="text-[11px] font-medium text-zinc-500 uppercase tracking-wider">Total</span>
-                    <span className="text-sm font-bold" style={{ color: payload[0].payload?.color }}>{payload[0].value || 0}</span>
+                    <span className="text-sm font-bold" style={{ color: (payload[0].payload as any)?.color }}>{payload[0].value || 0}</span>
                 </div>
             </div>
         )
@@ -28,7 +28,8 @@ export function StatusPieChart({ data }: StatusPieChartProps) {
     const [mounted, setMounted] = useState(false)
 
     useEffect(() => {
-        setMounted(true)
+        const timer = setTimeout(() => setMounted(true), 0)
+        return () => clearTimeout(timer)
     }, [])
 
     if (!mounted) return (

@@ -18,7 +18,7 @@ export function DeleteStoreDialogContent({ storeId, storeName }: { storeId: stri
                 <AlertDialogTitle>Are you sure you want to delete this store?</AlertDialogTitle>
                 <AlertDialogDescription>
                     This action cannot be undone. This will permanently delete the store
-                    <span className="font-semibold tracking-wide text-destructive"> "{storeName}"</span> and remove all associated data.
+                    <span className="font-semibold tracking-wide text-destructive"> &quot;{storeName}&quot;</span> and remove all associated data.
                 </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>

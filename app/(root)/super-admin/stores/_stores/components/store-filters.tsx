@@ -16,7 +16,7 @@ import { Search } from "lucide-react"
 export function StoreFilters() {
     const searchParams = useSearchParams()
     const router = useRouter()
-    const [isPending, startTransition] = useTransition()
+    const [, startTransition] = useTransition()
 
     const initialSearch = searchParams.get("search") || ""
     const initialStatus = searchParams.get("status") || "all"

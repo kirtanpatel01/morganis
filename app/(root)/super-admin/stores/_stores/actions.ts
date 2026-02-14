@@ -144,7 +144,7 @@ export async function updateStore(
 
   const { id, ...updateData } = data;
 
-  const updates: Record<string, any> = {};
+  const updates: Record<string, unknown> = {};
   if (updateData.name) updates.name = updateData.name;
   if (updateData.gstin) updates.gstin = updateData.gstin;
   if (updateData.address) updates.address = updateData.address;

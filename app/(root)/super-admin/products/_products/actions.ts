@@ -9,7 +9,7 @@ import type { Product, Category, StoreMenu, ProductFilters } from "./types"
 export async function getStoresList(): Promise<{ id: string; name: string }[]> {
     const supabase = await createClient()
     const { data } = await supabase.from("stores").select("id, name").order("name")
-    return (data as any) || []
+    return (data as { id: string; name: string }[]) || []
 }
 
 /**
@@ -18,7 +18,7 @@ export async function getStoresList(): Promise<{ id: string; name: string }[]> {
 export async function getCategories(): Promise<Category[]> {
     const supabase = await createClient()
     const { data } = await supabase.from("categories").select("id, name").order("name")
-    return (data as any) || []
+    return (data as Category[]) || []
 }
 
 /**
@@ -64,7 +64,7 @@ export async function getProducts(filters?: ProductFilters): Promise<Product[]> 
         return []
     }
 
-    return (data || []).map((p: any) => ({
+    return (data || []).map((p: Record<string, any>) => ({
         id: p.id,
         name: p.name,
         description: p.description || "",
@@ -100,18 +100,18 @@ export async function getAllStoreMenus(): Promise<StoreMenu[]> {
     if (!allProducts) return []
 
     return stores.map(store => {
-        const storeProducts = allProducts.filter((p: any) => p.store_id === store.id)
+        const storeProducts = allProducts.filter((p) => (p as Record<string, unknown>).store_id === store.id)
         
         // Extract unique categories
         const categoriesMap = new Map()
-        storeProducts.forEach((p: any) => {
+        storeProducts.forEach((p) => {
             if (p.category) {
                 categoriesMap.set(p.category.id, p.category)
             }
         })
         const storeCategories = Array.from(categoriesMap.values())
 
-        const mappedProducts: Product[] = storeProducts.map((p: any) => ({
+        const mappedProducts: Product[] = storeProducts.map((p) => ({
              id: p.id,
              name: p.name,
              description: p.description || "",

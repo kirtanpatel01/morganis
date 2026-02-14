@@ -53,7 +53,7 @@ export async function getPublicCategories() {
     if (error) return [];
     
     // Return unique category names
-    const names = data.map((c: any) => c.name);
+    const names = data.map((c) => c.name);
     return ["All", ...Array.from(new Set(names))];
 }
 
@@ -68,7 +68,7 @@ export async function getPublicStores() {
         
     if (error) return [];
     
-    return ["All", ...data.map((s: any) => s.name)];
+    return ["All", ...data.map((s) => s.name)];
 }
 
 export async function getStoreProducts(storeId: string) {
@@ -119,7 +119,7 @@ export async function getStoreCategories(storeId: string) {
     if (error) return [];
     
     // Return unique category names
-    const names = data.map((c: any) => c.name);
+    const names = data.map((c) => c.name);
     return [...Array.from(new Set(names))];
 }
 

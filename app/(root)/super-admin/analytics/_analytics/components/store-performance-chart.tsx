@@ -9,7 +9,7 @@ interface StorePerformanceChartProps {
     data: StorePerformance[]
 }
 
-const CustomTooltip = ({ active, payload }: any) => {
+const CustomTooltip = ({ active, payload }: TooltipProps<number, string>) => {
     if (active && payload && payload.length) {
         const data = payload[0].payload as StorePerformance
         return (
@@ -39,7 +39,8 @@ export function StorePerformanceChart({ data }: StorePerformanceChartProps) {
     const [mounted, setMounted] = useState(false)
 
     useEffect(() => {
-        setMounted(true)
+        const timer = setTimeout(() => setMounted(true), 0)
+        return () => clearTimeout(timer)
     }, [])
 
     if (!mounted) return (

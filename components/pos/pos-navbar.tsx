@@ -28,7 +28,8 @@ export function PosNavbar() {
   const searchParams = useSearchParams()
 
   useEffect(() => {
-    setMounted(true)
+    const timer = setTimeout(() => setMounted(true), 0)
+    return () => clearTimeout(timer)
   }, [])
 
   const itemCount = mounted ? items.reduce((acc, item) => acc + item.quantity, 0) : 0

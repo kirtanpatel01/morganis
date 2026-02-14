@@ -24,11 +24,11 @@ export async function getAllOrders() {
   }
 
   // 3. Fetch all stores for mapping
-  const { data: stores, error: storesError } = await supabaseAdminAuth
+  const { data: stores } = await supabaseAdminAuth
     .from("stores")
     .select("id, name, admin_id")
 
-  const storeMap = new Map<string, any>()
+  const storeMap = new Map<string, { id: string, name: string, admin_id: string }>()
   if (stores) {
       stores.forEach(s => storeMap.set(s.id, s))
   }
@@ -44,7 +44,7 @@ export async function getAllOrders() {
   }
 
   // 5. Attach owner name and store info
-  const ordersWithInfo = (orders || []).map((order: any) => {
+  const ordersWithInfo = (orders || []).map((order) => {
       const store = storeMap.get(order.store_id)
       
       return {

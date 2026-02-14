@@ -1,8 +1,8 @@
 "use client"
 
 import { useState, useMemo, useEffect } from "react"
-import { useSuperAdminOrders } from "../hooks/use-super-admin-orders"
-import { Search, Store, Filter, Calendar } from "lucide-react"
+import { useSuperAdminOrders, type Order } from "../hooks/use-super-admin-orders"
+import { Search } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { 
     Select, 
@@ -12,15 +12,19 @@ import {
     SelectValue 
 } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { OrdersTable } from "../../../admin/orders/components/orders-table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 interface SuperAdminOrdersClientProps {
-    initialOrders: any[]
-    initialStats: any
-    initialStores: any[]
+    initialOrders: Order[]
+    initialStats: {
+        totalOrders: number
+        totalRevenue: number
+        pendingOrders: number
+        completedOrders: number
+    }
+    initialStores: { id: string, name: string }[]
 }
 
 export function SuperAdminOrdersClient({ 
@@ -28,7 +32,7 @@ export function SuperAdminOrdersClient({
     initialStats, 
     initialStores 
 }: SuperAdminOrdersClientProps) {
-    const { orders, stats, stores, isLoading } = useSuperAdminOrders({
+    const { orders, stats, stores } = useSuperAdminOrders({
         initialOrders,
         initialStats,
         initialStores
@@ -40,7 +44,7 @@ export function SuperAdminOrdersClient({
 
     // Client-side filtering and searching
     const filteredOrders = useMemo(() => {
-        return orders.filter((order: any) => {
+        return (orders as Order[]).filter((order) => {
             const matchesSearch = 
                 order.customer_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -68,8 +72,8 @@ export function SuperAdminOrdersClient({
         window.history.replaceState({}, "", url.toString())
     }, [searchQuery, statusFilter, storeFilter])
 
-    const pendingOrders = filteredOrders.filter((o: any) => o.status === 'pending')
-    const activeOrders = filteredOrders.filter((o: any) => ['accepted', 'processing', 'ready', 'completed'].includes(o.status))
+    const pendingOrders = filteredOrders.filter((o) => o.status === 'pending')
+    const activeOrders = filteredOrders.filter((o) => ['accepted', 'processing', 'ready', 'completed'].includes(o.status))
 
     return (
         <div className="flex flex-col gap-6">
@@ -147,7 +151,7 @@ export function SuperAdminOrdersClient({
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="all">All Stores</SelectItem>
-                                {stores.map((store: any) => (
+                                {stores.map((store) => (
                                     <SelectItem key={store.id} value={store.id}>
                                         {store.name}
                                     </SelectItem>

@@ -3,13 +3,12 @@
 import { useRouter } from "next/navigation"
 import { createOrder } from "@/app/(root)/order/actions"
 
-import { IconMinus, IconPlus, IconShoppingCart, IconTrash, IconArrowLeft } from "@tabler/icons-react"
+import { IconMinus, IconPlus, IconShoppingCart, IconArrowLeft } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import {
   Sheet,
   SheetContent,
   SheetDescription,
-  SheetFooter,
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet"
@@ -27,7 +26,7 @@ interface CartSidebarProps {
 
 export function CartSidebar({ storeId }: CartSidebarProps) {
   const router = useRouter()
-  const { items, isOpen, setIsOpen, removeItem, updateQuantity, subtotal, clearCart } = useCartStore()
+  const { items, isOpen, setIsOpen, updateQuantity, subtotal, clearCart } = useCartStore()
   // Hydration fix for persist middleware
   const [mounted, setMounted] = useState(false)
   const [view, setView] = useState<'cart' | 'checkout'>('cart')

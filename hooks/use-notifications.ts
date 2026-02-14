@@ -41,7 +41,7 @@ export function useNotifications() {
             table: "notifications",
             filter: `user_id=eq.${user.id}`,
           },
-          (payload: { [key: string]: any }) => {
+          (payload: { new: Notification }) => {
             console.log("[Notifications] Payload received:", payload);
             const newNotification = payload.new as Notification;
 

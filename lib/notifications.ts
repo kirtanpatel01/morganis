@@ -1,5 +1,5 @@
 import { Notification } from "@/types/notifications"
-import { Store, ShoppingCart, AlertCircle, CheckCircle, Info } from "lucide-react"
+import { AlertCircle, CheckCircle, Info } from "lucide-react"
 
 // Mock notification data - REPLACED BY DATABASE & REACT QUERY
 // Kept temporarily for reference but emptied/commented to avoid type errors with old schema

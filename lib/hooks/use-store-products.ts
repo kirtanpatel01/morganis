@@ -2,12 +2,13 @@
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getStoreProducts, getStoreCategories } from "@/lib/actions/public-products";
+import { Product } from "@/components/pos/product-data";
 import { createClient } from "@/lib/supabase/client";
 import { useEffect } from "react";
 
 interface UseStoreProductsOptions {
     storeId: string;
-    initialProducts?: any[];
+    initialProducts?: Product[];
     initialCategories?: string[];
 }
 

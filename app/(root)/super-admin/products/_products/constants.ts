@@ -1,4 +1,4 @@
-import { Category, Product, StoreMenu } from "./types"
+import { Category, Product } from "./types"
 
 // Stores list for reference
 export const STORES_LIST = [

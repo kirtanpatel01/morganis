@@ -5,9 +5,10 @@ import { getPublicProducts, getPublicCategories, getPublicStores } from "@/lib/a
 import { createClient } from "@/lib/supabase/client";
 import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { Product } from "@/components/pos/product-data";
 
 interface UsePublicProductsOptions {
-    initialProducts?: any[];
+    initialProducts?: Product[];
     initialCategories?: string[];
     initialStores?: string[];
 }
@@ -44,7 +45,7 @@ export const usePublicProducts = ({ initialProducts, initialCategories, initialS
             .on(
                 'postgres_changes',
                 { event: 'UPDATE', schema: 'public', table: 'stores' },
-                (payload) => {
+                () => {
                     // If store status changes (e.g. active -> inactive), we must refresh products
                     // We check payload.new.status vs payload.old.status if available, but invalidating is safest
                     queryClient.invalidateQueries({ queryKey: ['public', 'products'] });

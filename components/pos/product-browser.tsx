@@ -4,15 +4,15 @@ import { useState } from "react"
 import { PosSidebar } from "./pos-sidebar"
 import { ProductCard } from "./product-card"
 import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
 import { IconSearch, IconSortAscending, IconAdjustmentsHorizontal } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { PosFooter } from "./pos-footer"
 import { usePublicProducts } from "@/lib/hooks/use-public-products"
+import { Product } from "./product-data"
 
     interface ProductBrowserProps {
-    initialProducts: any[];
+    initialProducts: Product[];
     initialCategories: string[];
     initialStores: string[];
 }
@@ -62,7 +62,7 @@ export function ProductBrowser({ initialProducts, initialCategories, initialStor
         setIsNew(false)
     }
 
-    const filteredProducts = (products || []).filter((product: any) => {
+    const filteredProducts = (products || []).filter((product) => {
         const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                             product.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
                             (product.storeName && product.storeName.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -75,7 +75,7 @@ export function ProductBrowser({ initialProducts, initialCategories, initialStor
         const matchesNew = !isNew || product.isNew
 
         return matchesSearch && matchesCategory && matchesStore && matchesPrice && matchesStock && matchesNew
-    }).sort((a: any, b: any) => {
+    }).sort((a, b) => {
         if (sortOption === "price-asc") return a.price - b.price
         if (sortOption === "price-desc") return b.price - a.price
         if (sortOption === "rating") return b.rating - a.rating
@@ -86,9 +86,9 @@ export function ProductBrowser({ initialProducts, initialCategories, initialStor
         return 0
     })
 
-    const SidebarWithProps = (props: { className?: string }) => (
+    const sidebarContent = (className?: string) => (
         <PosSidebar 
-            className={props.className}
+            className={className}
             selectedCategories={selectedCategories}
             onCategoryChange={handleCategoryChange}
             priceRange={[priceRange[0], priceRange[1]]}
@@ -108,7 +108,7 @@ export function ProductBrowser({ initialProducts, initialCategories, initialStor
     return (
         <div className="flex flex-1 overflow-hidden">
              <aside className="hidden w-64 flex-col border-r bg-background md:flex overflow-y-auto">
-                <SidebarWithProps className="h-full" />
+                {sidebarContent("h-full")}
              </aside>
              <main className="relative flex flex-1 flex-col h-full overflow-hidden">
                 <div className="flex flex-col md:flex-row items-center justify-between px-4 py-3 bg-background border-b gap-3 md:gap-4">
@@ -131,7 +131,7 @@ export function ProductBrowser({ initialProducts, initialCategories, initialStor
                                 </Button>
                             </SheetTrigger>
                             <SheetContent side="left" className="w-[300px] sm:w-[400px] pr-0">
-                                <SidebarWithProps />
+                                {sidebarContent()}
                             </SheetContent>
                         </Sheet>
                         <Select value={sortOption} onValueChange={setSortOption}>
@@ -155,7 +155,7 @@ export function ProductBrowser({ initialProducts, initialCategories, initialStor
                 <div className="flex-1 overflow-y-auto">
                     <div className="p-4 lg:p-6">
                         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-                            {filteredProducts.map((product: any) => (
+                            {filteredProducts.map((product) => (
                                 <ProductCard key={product.id} product={product} />
                             ))}
                         </div>
@@ -166,7 +166,7 @@ export function ProductBrowser({ initialProducts, initialCategories, initialStor
                                 </div>
                                 <h3 className="text-lg font-semibold">No products found</h3>
                                 <p className="text-muted-foreground mt-1 max-w-xs mx-auto">
-                                    We couldn't find any products matching your search criteria. Try adjusting your filters.
+                                    We couldn&apos;t find any products matching your search criteria. Try adjusting your filters.
                                 </p>
                                 <Button variant="link" onClick={handleReset} className="mt-4">
                                     Clear all filters

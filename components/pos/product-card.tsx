@@ -8,7 +8,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Product } from "./product-data"
-import { IconShoppingCart, IconHeart } from "@tabler/icons-react"
+import { IconShoppingCart } from "@tabler/icons-react"
 
 import { useCartStore } from "./cart-store"
 

@@ -184,7 +184,7 @@ export default function AnalyticsPage() {
                             <div className="p-4 rounded-xl bg-primary/5 border border-primary/10 mt-4">
                                 <p className="text-[10px] font-bold text-primary uppercase tracking-[0.2em] mb-2">Automated Insight</p>
                                 <p className="text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed">
-                                    Store <span className="font-bold">"Venkatesh"</span> is currently outperforming others in Average Order Value. Study their multi-item order patterns for platform-wide implementation.
+                                    Store <span className="font-bold">&quot;Venkatesh&quot;</span> is currently outperforming others in Average Order Value. Study their multi-item order patterns for platform-wide implementation.
                                 </p>
                             </div>
                         </div>

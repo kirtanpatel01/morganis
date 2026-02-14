@@ -6,14 +6,19 @@ import { createClient } from "@/lib/supabase/client"
 import { getAllOrders, getSuperAdminOrderStats, getStoresList } from "../actions"
 import type { Database } from "@/types/supabase"
 
-type Order = Database["public"]["Tables"]["orders"]["Row"] & {
+export type Order = Database["public"]["Tables"]["orders"]["Row"] & {
     stores: { id: string; name: string } | null
     order_items: Database["public"]["Tables"]["order_items"]["Row"][]
 }
 
 interface UseSuperAdminOrdersOptions {
     initialOrders?: Order[];
-    initialStats?: any;
+    initialStats?: {
+        totalOrders: number;
+        totalRevenue: number;
+        pendingOrders: number;
+        completedOrders: number;
+    };
     initialStores?: { id: string; name: string }[];
 }
 

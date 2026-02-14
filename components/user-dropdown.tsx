@@ -1,13 +1,11 @@
 "use client"
 
 import * as React from "react"
-import { Settings, LogOut, UserCircle } from "lucide-react"
-import Link from "next/link"
+import { LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
     DropdownMenu,
     DropdownMenuContent,
-    DropdownMenuGroup,
     DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuSeparator,
