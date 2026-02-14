@@ -1,7 +1,7 @@
 "use client"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Building2, TrendingUp, DollarSign, Users } from "lucide-react"
+import { Building2, TrendingUp, IndianRupee, Users } from "lucide-react"
 import type { DashboardStats } from "../types"
 
 interface StatsCardsProps {
@@ -11,7 +11,7 @@ interface StatsCardsProps {
 const iconMap = {
     Building2: Building2,
     TrendingUp: TrendingUp,
-    DollarSign: DollarSign,
+    IndianRupee: IndianRupee,
     Users: Users,
 }
 
@@ -33,7 +33,7 @@ const statsConfig = [
     {
         key: "totalRevenue" as const,
         title: "Total Revenue",
-        icon: "DollarSign",
+        icon: "IndianRupee",
         color: "text-purple-500",
         bgColor: "bg-purple-50 dark:bg-purple-950",
         prefix: "₹",

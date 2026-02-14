@@ -71,7 +71,7 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
                                     <span className="font-medium w-8 text-center bg-muted rounded-sm">{item.quantity}x</span>
                                     <span>{item.product_name}</span>
                                 </div>
-                                <span>${(item.price * item.quantity).toFixed(2)}</span>
+                                <span>₹{(item.price * item.quantity).toFixed(2)}</span>
                             </div>
                         ))}
                     </div>
@@ -83,7 +83,7 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
                 <div className="space-y-1.5 pt-2">
                     <div className="flex justify-between font-bold text-lg">
                         <span>Total</span>
-                        <span>${order.total_amount.toFixed(2)}</span>
+                        <span>₹{order.total_amount.toFixed(2)}</span>
                     </div>
                 </div>
                 

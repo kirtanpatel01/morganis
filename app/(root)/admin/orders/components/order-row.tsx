@@ -22,6 +22,11 @@ import type { Database } from "../../../../../types/supabase"
 
 type Order = Database["public"]["Tables"]["orders"]["Row"] & {
     order_items: Database["public"]["Tables"]["order_items"]["Row"][]
+    stores?: {
+        id: string
+        name: string
+    }
+    store_owner_name?: string
 }
 
 interface OrderRowProps {
@@ -94,25 +99,30 @@ export function OrderRow({ order, showActions = true, variant = 'table' }: Order
                         </div>
                     </div>
                     <div className="text-right">
-                        <div className="text-lg font-bold">${order.total_amount.toFixed(2)}</div>
+                        <div className="text-lg font-bold">₹{order.total_amount.toFixed(2)}</div>
                         <Badge variant={order.payment_status === 'paid' ? 'default' : 'secondary'} className="text-[10px] px-1.5 h-4">
                             {order.payment_status}
                         </Badge>
                     </div>
                 </div>
 
-                <div className="space-y-2">
+                {order.stores && (
+                    <div className="bg-muted/30 p-2 rounded text-xs space-y-1">
+                        <div className="flex justify-between">
+                            <span className="text-muted-foreground">Store:</span>
+                            <span className="font-medium">{order.stores.name}</span>
+                        </div>
+                        <div className="flex justify-between">
+                            <span className="text-muted-foreground">Owner:</span>
+                            <span className="font-medium">{order.store_owner_name}</span>
+                        </div>
+                    </div>
+                )}
+
                     <div className="flex flex-col">
                         <span className="text-sm font-semibold">{order.customer_name}</span>
                         <span className="text-xs text-muted-foreground">{order.customer_phone}</span>
                     </div>
-                    <div className="text-xs border-t pt-2 mt-2">
-                        <span className="font-medium">{order.order_items.length} items: </span>
-                        <span className="text-muted-foreground">
-                            {order.order_items.map(i => i.product_name).join(", ")}
-                        </span>
-                    </div>
-                </div>
 
                 <div className="flex justify-end gap-2 pt-2 border-t">
                     <Button 
@@ -187,14 +197,12 @@ export function OrderRow({ order, showActions = true, variant = 'table' }: Order
                 {format(new Date(order.created_at), "h:mm a")}
             </TableCell>
             <TableCell>
-                <span className="text-sm">
-                    {order.order_items.length} items
-                </span>
-                <span className="text-xs text-muted-foreground block truncate max-w-[150px]">
-                    {order.order_items.map(i => i.product_name).join(", ")}
-                </span>
+                <div className="flex flex-col">
+                    <span className="font-medium">{order.stores?.name || "-"}</span>
+                    <span className="text-xs text-muted-foreground">{order.store_owner_name || "-"}</span>
+                </div>
             </TableCell>
-            <TableCell>${order.total_amount.toFixed(2)}</TableCell>
+            <TableCell>₹{order.total_amount.toFixed(2)}</TableCell>
             <TableCell>
                 <Badge className={getStatusColor(order.status)} variant="outline">
                     {order.status}
@@ -206,56 +214,59 @@ export function OrderRow({ order, showActions = true, variant = 'table' }: Order
                 </Badge>
             </TableCell>
             
-            {showActions && (
-                <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                        {order.status === 'pending' && (
-                            <>
-                                <Button 
-                                    size="sm" 
-                                    variant="outline" 
-                                    className="h-8 w-8 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
-                                    onClick={() => handleStatusUpdate('accepted')}
-                                    disabled={updateOrderMutation.isPending}
-                                    title="Accept Order"
-                                >
-                                    <CheckCircle className="h-4 w-4" />
-                                </Button>
-                                <Button 
-                                    size="sm" 
-                                    variant="outline" 
-                                    className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
-                                    onClick={() => handleStatusUpdate('rejected', 'Store Rejected')}
-                                    disabled={updateOrderMutation.isPending}
-                                    title="Reject Order"
-                                >
-                                    <XCircle className="h-4 w-4" />
-                                </Button>
-                            </>
-                        )}
+            <TableCell className="text-right">
+                <div className="flex justify-end gap-2">
+                    {showActions && (
+                        <>
+                            {order.status === 'pending' && (
+                                <>
+                                    <Button 
+                                        size="sm" 
+                                        variant="outline" 
+                                        className="h-8 w-8 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
+                                        onClick={() => handleStatusUpdate('accepted')}
+                                        disabled={updateOrderMutation.isPending}
+                                        title="Accept Order"
+                                    >
+                                        <CheckCircle className="h-4 w-4" />
+                                    </Button>
+                                    <Button 
+                                        size="sm" 
+                                        variant="outline" 
+                                        className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                        onClick={() => handleStatusUpdate('rejected', 'Store Rejected')}
+                                        disabled={updateOrderMutation.isPending}
+                                        title="Reject Order"
+                                    >
+                                        <XCircle className="h-4 w-4" />
+                                    </Button>
+                                </>
+                            )}
 
-                        {order.status === 'accepted' && order.payment_status === 'processing' && (
-                             <Button 
-                                size="sm" 
-                                className="h-8 bg-green-600 hover:bg-green-700"
-                                onClick={() => handlePaymentUpdate('paid')}
-                                disabled={isUpdatingPayment || updateOrderMutation.isPending}
-                            >
-                                Confirm Payment
-                            </Button>
-                        )}
+                            {order.status === 'accepted' && order.payment_status === 'processing' && (
+                                 <Button 
+                                    size="sm" 
+                                    className="h-8 bg-green-600 hover:bg-green-700"
+                                    onClick={() => handlePaymentUpdate('paid')}
+                                    disabled={isUpdatingPayment || updateOrderMutation.isPending}
+                                >
+                                    Confirm Payment
+                                </Button>
+                            )}
+                        </>
+                    )}
 
-                        <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="h-8 w-8"
-                            onClick={() => setIsDetailsOpen(true)}
-                        >
-                            <Eye className="h-4 w-4 text-muted-foreground" />
-                        </Button>
-                    </div>
-                </TableCell>
-            )}
+                    <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="h-8 gap-2"
+                        onClick={() => setIsDetailsOpen(true)}
+                    >
+                        <Eye className="h-4 w-4 text-muted-foreground" />
+                        Details
+                    </Button>
+                </div>
+            </TableCell>
         </TableRow>
         
         <OrderDetailsDialog 

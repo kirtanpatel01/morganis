@@ -71,14 +71,14 @@ export function OrdersClient({ initialData }: OrdersClientProps) {
                     <TabsTrigger value="history">History</TabsTrigger>
                 </TabsList>
 
-                <div className="flex-1 overflow-auto mt-4 border rounded-md">
-                    <TabsContent value="pending" className="h-full mt-0">
+                <div className="flex-1 overflow-auto border rounded-md">
+                    <TabsContent value="pending">
                         <OrdersTable orders={pendingOrders} showActions={true} />
                     </TabsContent>
-                    <TabsContent value="active" className="h-full mt-0">
+                    <TabsContent value="active">
                         <OrdersTable orders={activeOrders} showActions={true} />
                     </TabsContent>
-                    <TabsContent value="history" className="h-full mt-0">
+                    <TabsContent value="history">
                         <OrdersTable orders={historyOrders} showActions={false} />
                     </TabsContent>
                 </div>

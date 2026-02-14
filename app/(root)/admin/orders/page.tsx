@@ -7,23 +7,14 @@ export default async function OrdersPage() {
 
   if (error) {
     return (
-      <div className="flex h-full flex-col items-center justify-center p-8 text-destructive">
+      <div className="flex h-full flex-col items-center justify-center p-4 sm:p-6 text-destructive">
         Error loading orders: {error}
       </div>
     )
   }
 
   return (
-    <div className="h-full flex-1 flex-col space-y-8 p-4 md:p-8">
-      <div className="flex items-center justify-between space-y-2">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">Order Management</h2>
-          <p className="text-muted-foreground">
-            View and manage real-time orders from customers.
-          </p>
-        </div>
-      </div>
-      <Separator />
+    <div className="p-4 sm:p-6">
       <OrdersClient initialData={orders || []} />
     </div>
   )

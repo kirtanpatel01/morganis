@@ -46,11 +46,11 @@ export function OrdersTable({ orders, showActions = true }: OrdersTableProps) {
               <TableHead className="w-[100px]">Order ID</TableHead>
               <TableHead>Customer</TableHead>
               <TableHead>Time</TableHead>
-              <TableHead>Items</TableHead>
+              <TableHead>Store / Owner</TableHead>
               <TableHead>Total</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Payment</TableHead>
-              {showActions && <TableHead className="text-right">Actions</TableHead>}
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

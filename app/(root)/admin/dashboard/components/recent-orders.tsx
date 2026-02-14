@@ -65,7 +65,7 @@ export function RecentOrders() {
                                     {order.status.replace(/_/g, " ")}
                                 </Badge>
                             </TableCell>
-                            <TableCell>${order.totalAmount.toFixed(2)}</TableCell>
+                            <TableCell>₹{order.totalAmount.toFixed(2)}</TableCell>
                             <TableCell className="text-right">
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
