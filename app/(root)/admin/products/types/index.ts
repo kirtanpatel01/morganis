@@ -1,25 +1,32 @@
 export interface Product {
   id: string;
+  store_id: string;
+  category_id?: string;
   name: string;
   description?: string;
   price: number;
   stock: number;
-  category: string;
+  unit: string;
+  unit_quantity: number;
   status: 'active' | 'draft' | 'archived';
-  imageUrl?: string;
-  createdAt: string;
+  created_at: string;
+  updated_at: string;
+  category?: {
+    id: string;
+    name: string;
+  } | null;
 }
 
 export interface Category {
   id: string;
+  store_id: string;
   name: string;
-  slug: string;
-  description?: string;
+  created_at: string;
 }
 
 export interface ProductFilters {
   search?: string;
-  category?: string;
+  categoryId?: string;
   status?: string;
   page?: number;
   limit?: number;

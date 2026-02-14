@@ -1,20 +1,14 @@
-// Notification types and interfaces
+import type { NotificationType } from "@/lib/actions/notifications";
 
-export type NotificationType = "info" | "success" | "warning" | "error"
-export type NotificationStatus = "read" | "unread"
+export type { NotificationType }; // Re-export for convenience
 
 export interface Notification {
-  id: string
-  title: string
-  message: string
-  type: NotificationType
-  status: NotificationStatus
-  timestamp: string
-  link?: string
-  icon?: React.ReactNode
-}
-
-export interface NotificationGroup {
-  date: string
-  notifications: Notification[]
+  id: string;
+  user_id: string;
+  title: string;
+  message: string;
+  type: NotificationType;
+  data?: any;
+  is_read: boolean;
+  created_at: string;
 }

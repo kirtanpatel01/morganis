@@ -9,13 +9,12 @@ export default function QueryProvider({
 }: {
   children: React.ReactNode
 }) {
-  // prevents recreating client on every render
   const [queryClient] = useState(
     () =>
       new QueryClient({
         defaultOptions: {
           queries: {
-            staleTime: 60 * 1000, // 1 min cache
+            staleTime: 60 * 1000, 
             refetchOnWindowFocus: false,
             retry: 1,
           },

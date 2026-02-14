@@ -1,5 +1,6 @@
 export { CreateStoreModal } from "./create-store-modal"
-export { EditStoreModal } from "./edit-store-modal"
-export { DeleteStoreDialog } from "./delete-store-dialog"
+export { EditStoreDialogContent } from "./edit-store-dialog-content"
+export { DeleteStoreDialogContent } from "./delete-store-dialog-content"
 export { StoresTable } from "./stores-table"
 export { Pagination } from "./pagination"
+export { StoreFilters } from "./store-filters"

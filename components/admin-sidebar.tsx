@@ -1,14 +1,30 @@
 "use client"
-import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarFooter } from './ui/sidebar'
-import Link from 'next/link'
-import React from 'react'
-import { IconDashboard, IconSettings, IconPackage, IconShoppingCart, IconCreditCard, IconUsers } from '@tabler/icons-react'
-import { Separator } from './ui/separator'
-import { Moon, LogOut } from 'lucide-react'
-import { usePathname } from 'next/navigation'
-import { cn } from '@/lib/utils'
 
-function AdminSidebar() {
+import { 
+  Sidebar, 
+  SidebarContent, 
+  SidebarGroup, 
+  SidebarGroupContent, 
+  SidebarHeader, 
+  SidebarMenu, 
+  SidebarMenuButton, 
+  SidebarMenuItem, 
+  SidebarGroupLabel,
+  SidebarRail
+} from './ui/sidebar'
+import { 
+  IconDashboard, 
+  IconSettings, 
+  IconPackage, 
+  IconShoppingCart, 
+  IconCreditCard, 
+  IconUsers 
+} from '@tabler/icons-react'
+import Link from 'next/link'
+import { Store } from 'lucide-react'
+import { usePathname } from 'next/navigation'
+
+function AdminSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
 
   const adminRoutes = [
@@ -21,18 +37,21 @@ function AdminSidebar() {
   ]
 
   return (
-    <Sidebar collapsible='icon' variant="sidebar">
-      <SidebarHeader className="h-16 border-b border-border/40">
+    <Sidebar collapsible='icon' {...props}>
+      <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild className="md:h-8 md:p-0 hover:bg-transparent hover:text-primary">
-              <Link href="/admin/dashboard" className="flex items-center gap-2">
+            <SidebarMenuButton 
+              size="lg" 
+              asChild
+            >
+              <Link href="/admin">
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                  <Moon className="size-4" />
+                  <Store className="size-4" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">Morganis</span>
-                  <span className="truncate text-xs">Admin Dashboard</span>
+                  <span className="truncate text-xs">Store Admin</span>
                 </div>
               </Link>
             </SidebarMenuButton>
@@ -40,50 +59,26 @@ function AdminSidebar() {
         </SidebarMenu>
       </SidebarHeader>
 
-      <SidebarContent className="p-2">
+      <SidebarContent>
         <SidebarGroup>
+          <SidebarGroupLabel>Management</SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu className="gap-1">
-              {adminRoutes.map((item) => {
-                const isActive = pathname === item.url || (item.url !== '/admin/dashboard' && pathname?.startsWith(item.url));
-                const Icon = item.icon;
-
-                return (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={isActive}
-                      tooltip={item.title}
-                      className={cn(
-                        "transition-all duration-200 ease-in-out",
-                        isActive && "font-medium bg-sidebar-accent text-sidebar-accent-foreground shadow-sm"
-                      )}
-                    >
-                      <Link href={item.url}>
-                        <Icon className={cn("size-4", isActive && "text-primary")} />
-                        <span>{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
+            <SidebarMenu>
+              {adminRoutes.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                <SidebarMenuButton asChild tooltip={item.title} isActive={pathname === item.url}>
+                  <Link href={item.url}>
+                    {item.icon && <item.icon />}
+                    <span>{item.title}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-
-      <SidebarFooter className="border-t border-border/40 p-2">
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Logout">
-              <Link href="/logout"> {/* Placeholder logout link */}
-                <LogOut className="size-4" />
-                <span>Log out</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
+      <SidebarRail />
     </Sidebar>
   )
 }

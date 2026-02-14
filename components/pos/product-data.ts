@@ -3,6 +3,9 @@ export interface Product {
   id: string
   name: string
   category: string
+  storeName?: string
+  unit?: string
+  unit_quantity?: number
   price: number
   originalPrice?: number
   image: string
@@ -10,6 +13,7 @@ export interface Product {
   reviews: number
   inStock: boolean
   isNew?: boolean
+  taxRate?: number
 }
 
 export const products: Product[] = [

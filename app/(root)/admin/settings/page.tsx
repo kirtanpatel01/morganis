@@ -1,31 +1,38 @@
-"use client";
-
 import { StoreSettingsForm } from "./components/store-settings-form";
 import { ProfileForm } from "./components/profile-form";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { getStoreSettings, getProfileSettings } from "./actions";
 
-export default function SettingsPage() {
+import { Store, User } from "lucide-react";
+
+export default async function SettingsPage() {
+    const storeSettings = await getStoreSettings();
+    const profileSettings = await getProfileSettings();
+
     return (
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-            <div className="flex items-center justify-between space-y-2">
-                <div>
-                    <h2 className="text-3xl font-bold tracking-tight">Settings</h2>
-                    <p className="text-muted-foreground">Manage your store and account preferences.</p>
-                </div>
+        <div className="flex-1 space-y-4 p-6">
+            <div className="max-w-5xl">
+                <Tabs defaultValue="store">
+                    <TabsList>
+                        <TabsTrigger value="store">
+                            <Store className="h-4 w-4" />
+                            Store Settings
+                        </TabsTrigger>
+                        <TabsTrigger value="profile">
+                            <User className="h-4 w-4" />
+                            My Profile
+                        </TabsTrigger>
+                    </TabsList>
+                    
+                    <TabsContent value="store">
+                        <StoreSettingsForm initialData={storeSettings} />
+                    </TabsContent>
+                    
+                    <TabsContent value="profile">
+                        <ProfileForm initialData={profileSettings} />
+                    </TabsContent>
+                </Tabs>
             </div>
-
-            <Tabs defaultValue="store" className="space-y-4">
-                <TabsList>
-                    <TabsTrigger value="store">Store Settings</TabsTrigger>
-                    <TabsTrigger value="profile">Profile</TabsTrigger>
-                </TabsList>
-                <TabsContent value="store">
-                    <StoreSettingsForm />
-                </TabsContent>
-                <TabsContent value="profile">
-                    <ProfileForm />
-                </TabsContent>
-            </Tabs>
         </div>
     );
 }

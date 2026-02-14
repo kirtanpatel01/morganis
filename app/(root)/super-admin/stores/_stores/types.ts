@@ -15,9 +15,11 @@ export interface Store {
   name: string
   gstin: string
   address: string
-  stateCode: string
+  state_code: string
   status: StoreStatus
-  adminId: string
+  admin_id: string
+  owner_name?: string
+  tax_rate?: number
 }
 
 // Pagination types

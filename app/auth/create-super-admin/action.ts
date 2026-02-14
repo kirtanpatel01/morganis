@@ -1,6 +1,6 @@
 'use server'
 
-import { supabase } from "@/lib/supabase/auth-admin"
+import { supabaseAdminAuth } from "@/lib/supabase/auth-admin"
 import { z } from "zod"
 
 const loginSchema = z.object({
@@ -20,7 +20,7 @@ export async function createSuperAdmin(data: FormData) {
 
   const { email, password } = result.data
 
-  const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+  const { data: authData, error: authError } = await supabaseAdminAuth.auth.admin.createUser({
     email,
     password,
     user_metadata: {

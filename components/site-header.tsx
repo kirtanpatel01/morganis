@@ -15,12 +15,20 @@ import { ModeToggle } from "./mode-toggle"
 import { NotificationPopover } from "./notification-popover"
 import { UserDropdown } from "./user-dropdown"
 
-export function SiteHeader() {
+interface SiteHeaderProps {
+  user: {
+    name: string
+    email: string
+    avatar?: string
+  }
+}
+
+export function SiteHeader({ user }: SiteHeaderProps) {
   const pathname = usePathname() || "";
   const segments = pathname.split("/").filter(Boolean);
 
   return (
-    <header className="flex h-[var(--header-height)] shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-[var(--header-height)]">
+    <header className="sticky top-0 z-50 bg-background flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-[calc(var(--header-height)-0.8rem)]">
       <div className="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">
         <SidebarTrigger className="-ml-1" />
         <Separator
@@ -50,7 +58,7 @@ export function SiteHeader() {
         <div className="ml-auto flex items-center gap-2">
           <ModeToggle />
           <NotificationPopover />
-          <UserDropdown />
+          <UserDropdown user={user} />
         </div>
       </div>
     </header>

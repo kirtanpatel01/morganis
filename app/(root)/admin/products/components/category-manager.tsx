@@ -12,44 +12,51 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Trash2, Plus } from "lucide-react";
-import { useCategories } from "../hooks/use-products";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner"; // Assuming sonner
+import { useCategories, useCreateCategory, useDeleteCategory } from "../hooks/use-products";
+import { toast } from "sonner";
+import { Category } from "../types";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
-// Mock Category Mutations (should be moved to api/hooks)
-// For now, I'll just simulate them here as they were not explicitly in the previous API file
-// but required for the feature.
-const createCategory = async (name: string) => {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    // In a real app, this would return the new category
-    return { id: `CAT-${Date.now()}`, name, slug: name.toLowerCase().replace(/ /g, '-') };
-}
-const deleteCategory = async (id: string) => {
-    await new Promise(resolve => setTimeout(resolve, 500));
-}
-
-export function CategoryManager() {
+export function CategoryManager({ initialData, storeStatus }: { initialData: Category[]; storeStatus?: string }) {
     const [newVal, setNewVal] = useState("");
-    const { data: categories } = useCategories();
-    const queryClient = useQueryClient();
+    const { data: categories } = useCategories(initialData);
 
-    // Quick hooks for this component (ideally move to hooks/use-products.ts)
-    const { mutate: addCat, isPending: isAdding } = useMutation({
-        mutationFn: createCategory,
-        onSuccess: () => {
-            toast.success("Category added (mock)");
-            setNewVal("");
-            queryClient.invalidateQueries({ queryKey: ["products", "categories"] });
-        }
-    });
+    const { mutate: addCat, isPending: isAdding } = useCreateCategory();
+    const { mutate: delCat, isPending: isDeleting } = useDeleteCategory();
+    const isActive = storeStatus === 'active';
 
-    const { mutate: delCat, isPending: isDeleting } = useMutation({
-        mutationFn: deleteCategory,
-        onSuccess: () => {
-            toast.success("Category deleted (mock)");
-            queryClient.invalidateQueries({ queryKey: ["products", "categories"] });
+    const handleAdd = () => {
+        if (!newVal.trim()) {
+            toast.error("Please enter a category name");
+            return;
         }
-    });
+        
+        if (!isActive) {
+             toast.error(`Store is ${storeStatus}. Cannot add category.`);
+             return;
+        }
+
+        addCat(newVal, {
+            onSuccess: () => {
+                toast.success("Category added");
+                setNewVal("");
+            },
+            onError: (err) => {
+                toast.error("Failed to add category");
+            }
+        });
+    }
+
+    const handleDelete = (id: string) => {
+        delCat(id, {
+            onSuccess: () => {
+                toast.success("Category deleted");
+            },
+            onError: (err) => {
+                toast.error("Failed to delete category");
+            }
+        });
+    }
 
     return (
         <div className="space-y-4">
@@ -58,17 +65,32 @@ export function CategoryManager() {
                     placeholder="New Category Name"
                     value={newVal}
                     onChange={(e) => setNewVal(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && isActive && handleAdd()}
+                    disabled={!isActive}
                 />
-                <Button onClick={() => addCat(newVal)} disabled={!newVal || isAdding}>
-                    <Plus className="h-4 w-4 mr-2" /> Add
-                </Button>
+                
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <div className="inline-block"> 
+                                <Button onClick={handleAdd} disabled={isAdding || !isActive}>
+                                    <Plus className="h-4 w-4 mr-2" /> Add
+                                </Button>
+                            </div>
+                        </TooltipTrigger>
+                        {!isActive && (
+                            <TooltipContent>
+                                <p>You cannot create categories because the store status is {storeStatus}.</p>
+                            </TooltipContent>
+                        )}
+                    </Tooltip>
+                </TooltipProvider>
             </div>
             <div className="rounded-md border">
                 <Table>
                     <TableHeader>
                         <TableRow>
                             <TableHead>Name</TableHead>
-                            <TableHead>Slug</TableHead>
                             <TableHead className="text-right">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -76,13 +98,12 @@ export function CategoryManager() {
                         {categories?.map((cat) => (
                             <TableRow key={cat.id}>
                                 <TableCell className="font-medium">{cat.name}</TableCell>
-                                <TableCell>{cat.slug}</TableCell>
                                 <TableCell className="text-right">
                                     <Button
                                         variant="ghost"
                                         size="sm"
-                                        onClick={() => delCat(cat.id)}
-                                        disabled={isDeleting}
+                                        onClick={() => handleDelete(cat.id)}
+                                        disabled={isDeleting || !isActive}
                                     >
                                         <Trash2 className="h-4 w-4 text-destructive" />
                                     </Button>
@@ -91,7 +112,7 @@ export function CategoryManager() {
                         ))}
                         {categories?.length === 0 && (
                             <TableRow>
-                                <TableCell colSpan={3} className="text-center h-24">No categories found.</TableCell>
+                                <TableCell colSpan={2} className="text-center h-24">No categories found.</TableCell>
                             </TableRow>
                         )}
                     </TableBody>

@@ -3,53 +3,51 @@
 import * as React from "react"
 import { Bell } from "lucide-react"
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
+import { Button } from "./ui/button"
 import {
     Popover,
     PopoverContent,
     PopoverTrigger,
-} from "@/components/ui/popover"
-import { Badge } from "@/components/ui/badge"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Separator } from "@/components/ui/separator"
-import { cn } from "@/lib/utils"
+} from "./ui/popover"
+import { Badge } from "./ui/badge"
+import { ScrollArea } from "./ui/scroll-area"
+import { Separator } from "./ui/separator"
+import { cn } from "../lib/utils"
+import { useNotifications } from "../hooks/use-notifications"
 import {
-    MOCK_NOTIFICATIONS,
     formatNotificationTime,
     getNotificationIcon,
-} from "@/lib/notifications"
-import type { Notification } from "@/types/notifications"
+} from "../lib/notifications"
+import type { Notification } from "../types/notifications"
 
 export function NotificationPopover() {
-    const [notifications, setNotifications] = React.useState<Notification[]>(MOCK_NOTIFICATIONS)
+    const { notifications, isLoading, markAsRead, markAllAsRead } = useNotifications()
     const [open, setOpen] = React.useState(false)
 
-    const unreadCount = notifications.filter((n) => n.status === "unread").length
-
-    const markAsRead = (id: string) => {
-        setNotifications((prev) =>
-            prev.map((n) => (n.id === id ? { ...n, status: "read" as const } : n))
-        )
-    }
-
-    const markAllAsRead = () => {
-        setNotifications((prev) =>
-            prev.map((n) => ({ ...n, status: "read" as const }))
-        )
-    }
+    // Filter for unread based on is_read boolean
+    const unreadCount = notifications.filter((n) => !n.is_read).length
 
     const getNotificationColor = (type: Notification["type"]) => {
         switch (type) {
             case "success":
+            case "store_created":
                 return "text-green-500"
             case "warning":
                 return "text-yellow-500"
             case "error":
                 return "text-red-500"
             case "info":
+            case "store_status_changed":
             default:
                 return "text-blue-500"
         }
+    }
+
+    const getLink = (notification: Notification) => {
+        if (notification.data?.link) return notification.data.link;
+        if (notification.data?.storeId) return `/admin/settings`; 
+        // Default fallbacks based on type could go here
+        return null;
     }
 
     return (
@@ -76,7 +74,8 @@ export function NotificationPopover() {
                             variant="ghost"
                             size="sm"
                             className="h-auto p-0 text-xs text-muted-foreground hover:text-foreground"
-                            onClick={markAllAsRead}
+                            onClick={() => markAllAsRead()}
+                            disabled={isLoading}
                         >
                             Mark all as read
                         </Button>
@@ -84,7 +83,11 @@ export function NotificationPopover() {
                 </div>
                 <Separator />
                 <ScrollArea className="h-[400px]">
-                    {notifications.length === 0 ? (
+                    {isLoading ? (
+                         <div className="flex items-center justify-center py-8 text-muted-foreground text-sm">
+                            Loading...
+                        </div>
+                    ) : notifications.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-12 text-center">
                             <Bell className="h-12 w-12 text-muted-foreground/50 mb-2" />
                             <p className="text-sm text-muted-foreground">No notifications</p>
@@ -93,7 +96,17 @@ export function NotificationPopover() {
                         <div className="divide-y">
                             {notifications.map((notification) => {
                                 const Icon = getNotificationIcon(notification.type)
-                                const isUnread = notification.status === "unread"
+                                const isUnread = !notification.is_read
+                                const link = getLink(notification)
+
+                                const Content = (
+                                    <NotificationContent
+                                        notification={notification}
+                                        Icon={Icon}
+                                        isUnread={isUnread}
+                                        getNotificationColor={getNotificationColor}
+                                    />
+                                );
 
                                 return (
                                     <div
@@ -103,28 +116,18 @@ export function NotificationPopover() {
                                             isUnread && "bg-accent/30"
                                         )}
                                         onClick={() => {
-                                            markAsRead(notification.id)
-                                            if (notification.link) {
+                                            if (isUnread) markAsRead(notification.id)
+                                            if (link) {
                                                 setOpen(false)
                                             }
                                         }}
                                     >
-                                        {notification.link ? (
-                                            <Link href={notification.link} className="block">
-                                                <NotificationContent
-                                                    notification={notification}
-                                                    Icon={Icon}
-                                                    isUnread={isUnread}
-                                                    getNotificationColor={getNotificationColor}
-                                                />
+                                        {link ? (
+                                            <Link href={link} className="block">
+                                                {Content}
                                             </Link>
                                         ) : (
-                                            <NotificationContent
-                                                notification={notification}
-                                                Icon={Icon}
-                                                isUnread={isUnread}
-                                                getNotificationColor={getNotificationColor}
-                                            />
+                                            Content
                                         )}
                                     </div>
                                 )
@@ -132,21 +135,7 @@ export function NotificationPopover() {
                         </div>
                     )}
                 </ScrollArea>
-                {notifications.length > 0 && (
-                    <>
-                        <Separator />
-                        <div className="p-2">
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                className="w-full text-xs"
-                                asChild
-                            >
-                                <Link href="/super-admin/notifications">View all notifications</Link>
-                            </Button>
-                        </div>
-                    </>
-                )}
+                {/* View all link could be here */}
             </PopoverContent>
         </Popover>
     )
@@ -181,7 +170,7 @@ function NotificationContent({
                     {notification.message}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                    {formatNotificationTime(notification.timestamp)}
+                    {formatNotificationTime(notification.created_at)}
                 </p>
             </div>
         </div>

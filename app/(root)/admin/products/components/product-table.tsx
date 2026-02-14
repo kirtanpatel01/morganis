@@ -26,28 +26,41 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { MoreHorizontal, Plus, Search } from "lucide-react";
-import { useProducts, useDeleteProduct, useCategories } from "../hooks/use-products";
-import { Product } from "../types";
+import { MoreHorizontal, Search } from "lucide-react";
+import { useProducts, useCategories } from "../hooks/use-products";
+import { Product, Category } from "../types";
 
 interface ProductTableProps {
+    initialData: { data: Product[]; total: number };
+    initialCategories: Category[];
     onEdit?: (product: Product) => void;
+    onDelete?: (product: Product) => void;
+    action?: React.ReactNode;
+    storeStatus?: string;
 }
 
-export function ProductTable({ onEdit }: ProductTableProps) {
+export function ProductTable({ initialData, initialCategories, onEdit, onDelete, action, storeStatus }: ProductTableProps) {
     const [search, setSearch] = useState("");
     const [categoryFilter, setCategoryFilter] = useState("all");
     const [page, setPage] = useState(1);
     const [pageSize] = useState(10);
+    const isActive = storeStatus === 'active';
+
+    // Initial data is only valid for default filters
+    const isDefaultFilters = search === "" && categoryFilter === "all" && page === 1;
 
     const { data: productsData, isLoading } = useProducts({
-        search,
-        category: categoryFilter === "all" ? undefined : categoryFilter,
-        page,
-        limit: pageSize,
+        filters: {
+            search,
+            categoryId: categoryFilter === "all" ? undefined : categoryFilter,
+            page,
+            limit: pageSize,
+        },
+        initialData: undefined // Always fetch fresh data on client to ensure sync with pagination/filters
     });
-    const { data: categories } = useCategories();
-    const { mutate: deleteProduct } = useDeleteProduct();
+    
+    // We can use useCategories here too if we want to ensure it's fresh, but passed prop is fine for initial list.
+    const { data: categories } = useCategories(initialCategories);
 
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearch(e.target.value);
@@ -59,46 +72,46 @@ export function ProductTable({ onEdit }: ProductTableProps) {
         setPage(1);
     }
 
-    if (isLoading) return <div>Loading products...</div>;
+    // if (isLoading) return <div>Loading products...</div>; // Don't block UI on loading, show table skeleton or spinner inside
 
     return (
         <div className="space-y-4">
-            <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                    <div className="relative">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
+                    <div className="relative w-full sm:w-auto">
                         <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                         <Input
                             placeholder="Search products..."
                             value={search}
                             onChange={handleSearch}
-                            className="pl-8 w-[250px]"
+                            className="pl-8 w-full sm:w-[250px]"
                         />
                     </div>
                     <Select value={categoryFilter} onValueChange={handleCategoryChange}>
-                        <SelectTrigger className="w-[180px]">
+                        <SelectTrigger className="w-full sm:w-[180px]">
                             <SelectValue placeholder="Category" />
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">All Categories</SelectItem>
                             {categories?.map((cat) => (
-                                <SelectItem key={cat.id} value={cat.name}>
+                                <SelectItem key={cat.id} value={cat.id}>
                                     {cat.name}
                                 </SelectItem>
                             ))}
                         </SelectContent>
                     </Select>
                 </div>
-                <Button>
-                    <Plus className="mr-2 h-4 w-4" /> Add Product
-                </Button>
+                <div className="w-full sm:w-auto flex justify-end">
+                    {action}
+                </div>
             </div>
 
-            <div className="rounded-md border">
+            <div className="rounded-md border overflow-x-auto">
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Name</TableHead>
-                            <TableHead>Category</TableHead>
+                            <TableHead className="min-w-[150px]">Name</TableHead>
+                            <TableHead className="min-w-[120px]">Category</TableHead>
                             <TableHead>Price</TableHead>
                             <TableHead>Stock</TableHead>
                             <TableHead>Status</TableHead>
@@ -108,9 +121,9 @@ export function ProductTable({ onEdit }: ProductTableProps) {
                     <TableBody>
                         {productsData?.data.map((product) => (
                             <TableRow key={product.id}>
-                                <TableCell className="font-medium">{product.name}</TableCell>
-                                <TableCell>{product.category}</TableCell>
-                                <TableCell>${product.price.toFixed(2)}</TableCell>
+                                <TableCell className="font-medium whitespace-nowrap">{product.name}</TableCell>
+                                <TableCell className="whitespace-nowrap">{product.category?.name || "Uncategorized"}</TableCell>
+                                <TableCell>₹{product.price.toFixed(2)}</TableCell>
                                 <TableCell>{product.stock}</TableCell>
                                 <TableCell>
                                     <Badge variant={product.status === "active" ? "default" : "secondary"}>
@@ -120,19 +133,22 @@ export function ProductTable({ onEdit }: ProductTableProps) {
                                 <TableCell className="text-right">
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
-                                            <Button variant="ghost" className="h-8 w-8 p-0">
+                                            <Button variant="ghost" className="h-8 w-8 p-0" disabled={!isActive}>
                                                 <span className="sr-only">Open menu</span>
                                                 <MoreHorizontal className="h-4 w-4" />
                                             </Button>
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align="end">
                                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                            <DropdownMenuItem onClick={() => onEdit?.(product)}>Edit</DropdownMenuItem>
+                                            <DropdownMenuItem onClick={() => onEdit?.(product)} disabled={!isActive}>
+                                                Edit { !isActive && "(Store Inactive)" }
+                                            </DropdownMenuItem>
                                             <DropdownMenuItem
                                                 className="text-destructive"
-                                                onClick={() => deleteProduct(product.id)}
+                                                onClick={() => onDelete?.(product)}
+                                                disabled={!isActive}
                                             >
-                                                Delete
+                                                Delete { !isActive && "(Store Inactive)" }
                                             </DropdownMenuItem>
                                         </DropdownMenuContent>
                                     </DropdownMenu>
@@ -150,12 +166,11 @@ export function ProductTable({ onEdit }: ProductTableProps) {
                 </Table>
             </div>
 
-            {/* Pagination Controls */}
-            <div className="flex items-center justify-end space-x-2 py-4">
-                <div className="flex-1 text-sm text-muted-foreground">
-                    Showing {productsData?.data.length} of {productsData?.total} products
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-4">
+                <div className="text-sm text-muted-foreground order-2 sm:order-1">
+                    Showing {productsData?.data.length || 0} of {productsData?.total || 0} products
                 </div>
-                <div className="space-x-2">
+                <div className="space-x-2 order-1 sm:order-2">
                     <Button
                         variant="outline"
                         size="sm"
@@ -164,8 +179,8 @@ export function ProductTable({ onEdit }: ProductTableProps) {
                     >
                         Previous
                     </Button>
-                    <span className="text-sm font-medium">
-                        Page {page} of {Math.ceil((productsData?.total || 0) / pageSize)}
+                    <span className="text-sm font-medium mx-2">
+                        Page {page} of {Math.ceil((productsData?.total || 0) / pageSize) || 1}
                     </span>
                     <Button
                         variant="outline"
