@@ -166,13 +166,13 @@ export function SuperAdminOrdersClient({
                 </TabsList>
 
                 <TabsContent value="all" className="mt-4">
-                    <OrdersTable orders={filteredOrders} showActions={false} />
+                    <OrdersTable orders={filteredOrders} showActions={false} showStoreInfo={true} />
                 </TabsContent>
                 <TabsContent value="pending" className="mt-4">
-                    <OrdersTable orders={pendingOrders} showActions={false} />
+                    <OrdersTable orders={pendingOrders} showActions={false} showStoreInfo={true} />
                 </TabsContent>
                 <TabsContent value="active" className="mt-4">
-                    <OrdersTable orders={activeOrders} showActions={false} />
+                    <OrdersTable orders={activeOrders} showActions={false} showStoreInfo={true} />
                 </TabsContent>
             </Tabs>
         </div>

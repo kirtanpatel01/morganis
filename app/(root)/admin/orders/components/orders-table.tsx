@@ -18,9 +18,10 @@ type Order = Database["public"]["Tables"]["orders"]["Row"] & {
 interface OrdersTableProps {
   orders: Order[]
   showActions?: boolean
+  showStoreInfo?: boolean
 }
 
-export function OrdersTable({ orders, showActions = true }: OrdersTableProps) {
+export function OrdersTable({ orders, showActions = true, showStoreInfo = false }: OrdersTableProps) {
   if (orders.length === 0) {
     return (
       <div className="flex h-40 flex-col items-center justify-center rounded-md border text-center text-muted-foreground">
@@ -34,7 +35,7 @@ export function OrdersTable({ orders, showActions = true }: OrdersTableProps) {
       {/* Mobile Card View */}
       <div className="flex flex-col gap-4 lg:hidden">
         {orders.map((order) => (
-          <OrderRow key={order.id} order={order} showActions={showActions} variant="card" />
+          <OrderRow key={order.id} order={order} showActions={showActions} showStoreInfo={showStoreInfo} variant="card" />
         ))}
       </div>
 
@@ -46,7 +47,7 @@ export function OrdersTable({ orders, showActions = true }: OrdersTableProps) {
               <TableHead className="w-[100px]">Order ID</TableHead>
               <TableHead>Customer</TableHead>
               <TableHead>Time</TableHead>
-              <TableHead>Store / Owner</TableHead>
+              {showStoreInfo && <TableHead>Store / Owner</TableHead>}
               <TableHead>Total</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Payment</TableHead>
@@ -55,7 +56,7 @@ export function OrdersTable({ orders, showActions = true }: OrdersTableProps) {
           </TableHeader>
           <TableBody>
             {orders.map((order) => (
-              <OrderRow key={order.id} order={order} showActions={showActions} variant="table" />
+              <OrderRow key={order.id} order={order} showActions={showActions} showStoreInfo={showStoreInfo} variant="table" />
             ))}
           </TableBody>
         </Table>

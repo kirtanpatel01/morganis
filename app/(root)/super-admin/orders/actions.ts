@@ -12,42 +12,49 @@ export async function getAllOrders() {
     return { error: "Unauthorized" }
   }
 
-  // 2. Fetch all orders with store info
-  const { data: orders, error } = await supabaseAdminAuth
+  // 2. Fetch all orders
+  const { data: orders, error: ordersError } = await supabaseAdminAuth
     .from("orders")
-    .select(`
-        *,
-        stores (
-            id,
-            name,
-            admin_id
-        ),
-        order_items (*)
-    `)
+    .select("*, order_items (*)")
     .order("created_at", { ascending: false })
 
-  if (error) {
-    console.error("Error fetching all orders:", error)
+  if (ordersError) {
+    console.error("Error fetching all orders:", ordersError)
     return { error: "Failed to fetch orders" }
   }
 
-  // 3. Fetch all admin users to get their names
+  // 3. Fetch all stores for mapping
+  const { data: stores, error: storesError } = await supabaseAdminAuth
+    .from("stores")
+    .select("id, name, admin_id")
+
+  const storeMap = new Map<string, any>()
+  if (stores) {
+      stores.forEach(s => storeMap.set(s.id, s))
+  }
+
+  // 4. Fetch all admin users to get their names
   const { data: { users }, error: usersError } = await supabaseAdminAuth.auth.admin.listUsers()
   
   const ownerNameMap = new Map<string, string>()
   if (!usersError && users) {
       users.forEach(u => {
-          ownerNameMap.set(u.id, u.user_metadata?.full_name || u.user_metadata?.name || "Unknown")
+          ownerNameMap.set(u.id, u.user_metadata?.name || u.user_metadata?.full_name || "Unknown")
       })
   }
 
-  // 4. Attach owner name to orders
-  const ordersWithOwner = orders.map((order: any) => ({
-      ...order,
-      store_owner_name: ownerNameMap.get(order.stores?.admin_id) || "Unknown"
-  }))
+  // 5. Attach owner name and store info
+  const ordersWithInfo = (orders || []).map((order: any) => {
+      const store = storeMap.get(order.store_id)
+      
+      return {
+          ...order,
+          stores: store, // UI expects order.stores.name
+          store_owner_name: store?.admin_id ? ownerNameMap.get(store.admin_id) : "Unknown"
+      }
+  })
 
-  return { orders: ordersWithOwner }
+  return { orders: ordersWithInfo }
 }
 
 export async function getSuperAdminOrderStats() {

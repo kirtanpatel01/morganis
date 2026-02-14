@@ -207,16 +207,6 @@ export function OrderStatus({ initialOrder }: OrderStatusProps) {
         }
     }
 
-    const qrValue = `ORDER VERIFICATION
-
-                    ID: ${order.id.slice(0, 8)}
-                    Customer: ${order.customer_name}
-                    Total: ₹${order.total_amount.toFixed(2)}
-                    
-                    Verify at: ${typeof window !== 'undefined' ? window.location.origin : ''}/admin/orders?search=${order.id}`
-
-    console.log("QR VALUE:", qrValue)
-
     return (
         <div className="space-y-6">
             <Card className="w-full max-w-md mx-auto overflow-hidden">
@@ -251,7 +241,7 @@ export function OrderStatus({ initialOrder }: OrderStatusProps) {
                         <div className="bg-white p-4 rounded-xl shadow-inner border">
                             <QRCodeCanvas
                                 id="order-qr"
-                                value={`ORDER VERIFICATION\n\nID: ${order.id.slice(0, 8)}\nCustomer: ${order.customer_name}\nTotal: ₹${order.total_amount.toFixed(2)}\n\nVerify at: ${typeof window !== 'undefined' ? window.location.origin : ''}/admin/orders?search=${order.id}`}
+                                value={`${typeof window !== 'undefined' ? window.location.origin : ''}/admin/orders?search=${order.id}`}
                                 size={220}
                                 level="M"
                                 includeMargin={true}

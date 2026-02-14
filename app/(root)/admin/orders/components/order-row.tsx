@@ -32,10 +32,11 @@ type Order = Database["public"]["Tables"]["orders"]["Row"] & {
 interface OrderRowProps {
   order: Order
   showActions?: boolean
+  showStoreInfo?: boolean
   variant?: 'table' | 'card'
 }
 
-export function OrderRow({ order, showActions = true, variant = 'table' }: OrderRowProps) {
+export function OrderRow({ order, showActions = true, showStoreInfo = false, variant = 'table' }: OrderRowProps) {
     const [isDetailsOpen, setIsDetailsOpen] = useState(false)
     const [isUpdatingPayment, setIsUpdatingPayment] = useState(false)
     const updateOrderMutation = useUpdateOrder()
@@ -106,7 +107,7 @@ export function OrderRow({ order, showActions = true, variant = 'table' }: Order
                     </div>
                 </div>
 
-                {order.stores && (
+                {showStoreInfo && order.stores && (
                     <div className="bg-muted/30 p-2 rounded text-xs space-y-1">
                         <div className="flex justify-between">
                             <span className="text-muted-foreground">Store:</span>
@@ -196,12 +197,14 @@ export function OrderRow({ order, showActions = true, variant = 'table' }: Order
             <TableCell className="text-muted-foreground text-sm">
                 {format(new Date(order.created_at), "h:mm a")}
             </TableCell>
-            <TableCell>
-                <div className="flex flex-col">
-                    <span className="font-medium">{order.stores?.name || "-"}</span>
-                    <span className="text-xs text-muted-foreground">{order.store_owner_name || "-"}</span>
-                </div>
-            </TableCell>
+            {showStoreInfo && (
+                <TableCell>
+                    <div className="flex flex-col">
+                        <span className="font-medium">{order.stores?.name || "-"}</span>
+                        <span className="text-xs text-muted-foreground">{order.store_owner_name || "-"}</span>
+                    </div>
+                </TableCell>
+            )}
             <TableCell>₹{order.total_amount.toFixed(2)}</TableCell>
             <TableCell>
                 <Badge className={getStatusColor(order.status)} variant="outline">

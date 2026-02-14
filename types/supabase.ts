@@ -101,104 +101,6 @@ export type Database = {
         }
         Relationships: []
       }
-      order_items: {
-        Row: {
-          created_at: string
-          id: string
-          order_id: string
-          price: number
-          product_id: string
-          product_name: string
-          quantity: number
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          order_id: string
-          price: number
-          product_id: string
-          product_name: string
-          quantity: number
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          order_id?: string
-          price?: number
-          product_id?: string
-          product_name?: string
-          quantity?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "order_items_order_id_fkey"
-            columns: ["order_id"]
-            isOneToOne: false
-            referencedRelation: "orders"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "order_items_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "products"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      orders: {
-        Row: {
-          created_at: string
-          customer_email: string | null
-          customer_name: string
-          customer_phone: string
-          id: string
-          payment_status: Database["public"]["Enums"]["payment_status"]
-          rejection_reason: string | null
-          status: Database["public"]["Enums"]["order_status"]
-          store_id: string
-          total_amount: number
-          updated_at: string
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          customer_email?: string | null
-          customer_name: string
-          customer_phone: string
-          id?: string
-          payment_status?: Database["public"]["Enums"]["payment_status"]
-          rejection_reason?: string | null
-          status?: Database["public"]["Enums"]["order_status"]
-          store_id: string
-          total_amount: number
-          updated_at?: string
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          customer_email?: string | null
-          customer_name?: string
-          customer_phone?: string
-          id?: string
-          payment_status?: Database["public"]["Enums"]["payment_status"]
-          rejection_reason?: string | null
-          status?: Database["public"]["Enums"]["order_status"]
-          store_id?: string
-          total_amount?: number
-          updated_at?: string
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "orders_store_id_fkey"
-            columns: ["store_id"]
-            isOneToOne: false
-            referencedRelation: "stores"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       products: {
         Row: {
           category_id: string | null
@@ -206,14 +108,11 @@ export type Database = {
           description: string | null
           id: string
           image_url: string | null
-          is_tax_overridden: boolean
           name: string
           price: number
           status: string
           stock: number
           store_id: string
-          unit: string
-          unit_quantity: number
           updated_at: string
         }
         Insert: {
@@ -222,14 +121,11 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
-          is_tax_overridden?: boolean
           name: string
           price?: number
           status?: string
           stock?: number
           store_id: string
-          unit?: string
-          unit_quantity?: number
           updated_at?: string
         }
         Update: {
@@ -238,14 +134,11 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
-          is_tax_overridden?: boolean
           name?: string
           price?: number
           status?: string
           stock?: number
           store_id?: string
-          unit?: string
-          unit_quantity?: number
           updated_at?: string
         }
         Relationships: [
@@ -276,7 +169,6 @@ export type Database = {
           state_code: string | null
           status: Database["public"]["Enums"]["store_status"] | null
           super_admin_id: string | null
-          tax_rate: number | null
         }
         Insert: {
           address?: string | null
@@ -288,7 +180,6 @@ export type Database = {
           state_code?: string | null
           status?: Database["public"]["Enums"]["store_status"] | null
           super_admin_id?: string | null
-          tax_rate?: number | null
         }
         Update: {
           address?: string | null
@@ -300,9 +191,102 @@ export type Database = {
           state_code?: string | null
           status?: Database["public"]["Enums"]["store_status"] | null
           super_admin_id?: string | null
-          tax_rate?: number | null
         }
         Relationships: []
+      }
+      orders: {
+        Row: {
+          id: string
+          created_at: string
+          store_id: string
+          customer_name: string
+          customer_phone: string
+          customer_email: string | null
+          total_amount: number
+          status: string
+          payment_status: string
+          payment_method: string
+          user_id: string | null
+          rejection_reason: string | null
+        }
+        Insert: {
+          id?: string
+          created_at?: string
+          store_id: string
+          customer_name: string
+          customer_phone: string
+          customer_email?: string | null
+          total_amount: number
+          status?: string
+          payment_status?: string
+          payment_method: string
+          user_id?: string | null
+          rejection_reason?: string | null
+        }
+        Update: {
+          id?: string
+          created_at?: string
+          store_id?: string
+          customer_name?: string
+          customer_phone?: string
+          customer_email?: string | null
+          total_amount?: number
+          status?: string
+          payment_status?: string
+          payment_method?: string
+          user_id?: string | null
+          rejection_reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      order_items: {
+        Row: {
+          id: string
+          created_at: string
+          order_id: string
+          product_id: string
+          quantity: number
+          unit_price: number
+          total_price: number
+          product_name: string
+        }
+        Insert: {
+          id?: string
+          created_at?: string
+          order_id: string
+          product_id: string
+          quantity: number
+          unit_price: number
+          total_price: number
+          product_name: string
+        }
+        Update: {
+          id?: string
+          created_at?: string
+          order_id?: string
+          product_id?: string
+          quantity?: number
+          unit_price?: number
+          total_price?: number
+          product_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          }
+        ]
       }
     }
     Views: {
@@ -312,15 +296,6 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      order_status:
-        | "pending"
-        | "accepted"
-        | "rejected"
-        | "processing"
-        | "ready"
-        | "completed"
-        | "cancelled"
-      payment_status: "pending" | "processing" | "paid" | "failed"
       store_status: "pending" | "active" | "inactive"
       user_role: "admin" | "super-admin"
     }
@@ -453,16 +428,6 @@ export const Constants = {
   },
   public: {
     Enums: {
-      order_status: [
-        "pending",
-        "accepted",
-        "rejected",
-        "processing",
-        "ready",
-        "completed",
-        "cancelled",
-      ],
-      payment_status: ["pending", "processing", "paid", "failed"],
       store_status: ["pending", "active", "inactive"],
       user_role: ["admin", "super-admin"],
     },
