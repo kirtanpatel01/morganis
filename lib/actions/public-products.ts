@@ -1,8 +1,9 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { Product } from "@/components/pos/product-data";
 
-export async function getPublicProducts() {
+export async function getPublicProducts(): Promise<Product[]> {
     const supabase = await createClient();
     
     // Fetch products where the associated store is active
@@ -71,7 +72,7 @@ export async function getPublicStores() {
     return ["All", ...data.map((s) => s.name)];
 }
 
-export async function getStoreProducts(storeId: string) {
+export async function getStoreProducts(storeId: string): Promise<Product[]> {
     const supabase = await createClient();
     
     const { data, error } = await supabase

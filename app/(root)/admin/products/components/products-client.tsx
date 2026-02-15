@@ -48,7 +48,7 @@ export function ProductsClient({ initialProducts, initialCategories, initialStor
                table: 'stores', 
                filter: `id=eq.${storeId}` 
             },
-            (payload) => {
+            (payload: { [key: string]: any }) => {
                 console.log("Realtime store UPDATE received:", payload);
                 const newData = payload.new as { status?: string };
                 if (newData && newData.status) {
@@ -97,7 +97,6 @@ export function ProductsClient({ initialProducts, initialCategories, initialStor
         </TabsList>
         <TabsContent value="products" className="space-y-4">
           <ProductTable 
-            initialData={initialProducts}
             initialCategories={initialCategories}
             action={<CreateProductDialog storeStatus={storeStatus} taxRate={taxRate} />}
             onEdit={(product) => setEditingProduct(product)}

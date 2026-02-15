@@ -25,7 +25,7 @@ function useActiveStores(initialData: ActiveStore[]) {
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "stores" },
-        (payload) => {
+        (payload: { [key: string]: any }) => {
             // Invalidate to refetch fresh data (including owner names if we could, 
             // but owner names come from separate fetch. 
             // Since we fetch everything in getActiveStores, invalidating is correct.)

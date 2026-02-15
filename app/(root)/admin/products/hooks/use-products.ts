@@ -98,7 +98,7 @@ export const useRealtimeProducts = () => {
             .on(
                 'postgres_changes',
                 { event: '*', schema: 'public', table: 'products' },
-                (payload) => {
+                (payload: { [key: string]: any }) => {
                     console.log('Realtime product change:', payload);
                     queryClient.invalidateQueries({ queryKey: PRODUCT_KEYS.all });
                 }
@@ -110,7 +110,7 @@ export const useRealtimeProducts = () => {
             .on(
                 'postgres_changes',
                 { event: '*', schema: 'public', table: 'categories' },
-                (payload) => {
+                (payload: { [key: string]: any }) => {
                     console.log('Realtime category change:', payload);
                     queryClient.invalidateQueries({ queryKey: PRODUCT_KEYS.categories });
                 }

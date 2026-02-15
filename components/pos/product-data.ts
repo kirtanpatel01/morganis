@@ -14,6 +14,7 @@ export interface Product {
   inStock: boolean
   isNew?: boolean
   taxRate?: number
+  description?: string
 }
 
 export const products: Product[] = [

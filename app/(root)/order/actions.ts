@@ -73,7 +73,8 @@ export async function createOrder(params: CreateOrderParams) {
       product_id: item.id,
       product_name: item.name,
       quantity: item.quantity,
-      price: item.price,
+      unit_price: item.price,
+      total_price: item.price * item.quantity,
     }))
 
     const { error: itemsError } = await supabase

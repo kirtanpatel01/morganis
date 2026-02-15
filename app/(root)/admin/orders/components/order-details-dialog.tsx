@@ -70,7 +70,7 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
                                     <span className="font-medium w-8 text-center bg-muted rounded-sm">{item.quantity}x</span>
                                     <span>{item.product_name}</span>
                                 </div>
-                                <span>₹{(item.price * item.quantity).toFixed(2)}</span>
+                                <span>₹{(item.unit_price * item.quantity).toFixed(2)}</span>
                             </div>
                         ))}
                     </div>
