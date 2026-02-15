@@ -57,7 +57,7 @@ export async function updateOrderStatus(orderId: string, status: string, rejecti
 
     if (!store) return { success: false, error: "Unauthorized: Not store admin" }
 
-    const updateData: any = { 
+    const updateData: { status: string; user_id: string; rejection_reason?: string } = { 
         status,
         user_id: user.id // Pass the user_id as requested to satisfy RLS for future updates
     }

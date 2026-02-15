@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, TooltipProps } from "recharts"
+import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { RevenueDataPoint } from "../types"
 
@@ -9,11 +9,11 @@ interface RevenueTrendChartProps {
     data: RevenueDataPoint[]
 }
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+const CustomTooltip = ({ active, payload, label }: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
     if (active && payload && payload.length) {
         return (
             <div className="bg-white dark:bg-zinc-900 border rounded-lg p-3 shadow-xl ring-1 ring-black/5">
-                <p className="text-sm font-bold text-zinc-900 dark:text-zinc-100 mb-2">{new Date(label).toLocaleDateString("en-IN", { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+                <p className="text-sm font-bold text-zinc-900 dark:text-zinc-100 mb-2">{new Date(label as string).toLocaleDateString("en-IN", { month: 'short', day: 'numeric', year: 'numeric' })}</p>
                 <div className="space-y-1.5">
                     <div className="flex items-center justify-between gap-4">
                         <span className="text-[11px] font-medium text-zinc-500 uppercase tracking-wider">Revenue</span>
@@ -34,7 +34,8 @@ export function RevenueTrendChart({ data }: RevenueTrendChartProps) {
     const [mounted, setMounted] = useState(false)
 
     useEffect(() => {
-        setMounted(true)
+        const timer = setTimeout(() => setMounted(true), 0)
+        return () => clearTimeout(timer)
     }, [])
 
     if (!mounted) return (

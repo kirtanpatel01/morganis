@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
 import { simulatePayment } from "@/app/(root)/order/actions"
@@ -21,7 +21,7 @@ interface Order {
     customer_name: string
     rejection_reason?: string
     total_amount: number
-    [key: string]: any
+    [key: string]: unknown
 }
 
 interface OrderStatusProps {
@@ -59,19 +59,20 @@ export function OrderStatus({ initialOrder }: OrderStatusProps) {
                         table: "orders",
                         filter: `id=eq.${order.id}`,
                     },
-                    (payload: { [key: string]: any }) => {
+                    (payload: { [key: string]: unknown }) => {
                         console.log("[Realtime] Payload received:", payload)
 
                         setOrder((prev) => {
-                            const newState = { ...prev, ...payload.new } as Order
-                            if (payload.new.status && payload.new.status !== prev.status) {
-                                console.log(`[Realtime] Status change: ${prev.status} -> ${payload.new.status}`)
-                                toast.info(`Order status updated to: ${payload.new.status}`)
+                            const newOrderData = payload.new as Partial<Order>
+                            const newState = { ...prev, ...newOrderData } as Order
+                            if (newOrderData.status && newOrderData.status !== prev.status) {
+                                console.log(`[Realtime] Status change: ${prev.status} -> ${newOrderData.status}`)
+                                toast.info(`Order status updated to: ${newOrderData.status}`)
                             }
 
-                            if (payload.new.payment_status && payload.new.payment_status !== prev.payment_status) {
-                                console.log(`[Realtime] Payment update: ${prev.payment_status} -> ${payload.new.payment_status}`)
-                                toast.success(`Payment status: ${payload.new.payment_status}`)
+                            if (newOrderData.payment_status && newOrderData.payment_status !== prev.payment_status) {
+                                console.log(`[Realtime] Payment update: ${prev.payment_status} -> ${newOrderData.payment_status}`)
+                                toast.success(`Payment status: ${newOrderData.payment_status}`)
                             }
                             return newState
                         })
@@ -103,7 +104,7 @@ export function OrderStatus({ initialOrder }: OrderStatusProps) {
             } else {
                 toast.success("Payment successful! Waiting for store confirmation.")
             }
-        } catch (error) {
+        } catch {
             toast.error("An error occurred during payment")
         } finally {
             setIsProcessingPayment(false)

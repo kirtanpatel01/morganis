@@ -37,7 +37,7 @@ export function useOrders(initialData?: Order[]) {
                     schema: "public",
                     table: "orders",
                 },
-                (payload: { [key: string]: any }) => {
+                (payload: { [key: string]: unknown }) => {
                     console.log("Realtime update:", payload)
                     // Invalidate and refetch
                     queryClient.invalidateQueries({ queryKey: ["admin-orders"] })

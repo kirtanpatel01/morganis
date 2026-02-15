@@ -48,10 +48,11 @@ export function ProductsClient({ initialProducts, initialCategories, initialStor
                table: 'stores', 
                filter: `id=eq.${storeId}` 
             },
-            (payload: any) => {
+            (payload) => {
                 console.log("Realtime store UPDATE received:", payload);
-                if (payload.new && payload.new.status) {
-                    const newStatus = payload.new.status;
+                const newData = payload.new as { status?: string };
+                if (newData && newData.status) {
+                    const newStatus = newData.status;
                     const oldStatus = statusRef.current; // Use ref to compare without rebuilding effect
                     
                     setStoreStatus(newStatus);
@@ -62,7 +63,7 @@ export function ProductsClient({ initialProducts, initialCategories, initialStor
                 }
             }
         )
-        .subscribe((status) => {
+        .subscribe((status: string) => {
             console.log(`Store subscription status: ${status}`);
         });
     

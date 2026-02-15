@@ -74,7 +74,7 @@ export async function updateAdmin(id: string, formData: UpdateAdminInput) {
 
   const { name, email, password } = validated.data;
 
-  const updates: any = {
+  const updates: { email: string; user_metadata: { name: string }; password?: string } = {
     email: email,
     user_metadata: { name: name },
   };
@@ -83,7 +83,7 @@ export async function updateAdmin(id: string, formData: UpdateAdminInput) {
     updates.password = password;
   }
 
-  const { data, error } = await supabaseAdminAuth.auth.admin.updateUserById(
+  const { error } = await supabaseAdminAuth.auth.admin.updateUserById(
     id,
     updates
   );

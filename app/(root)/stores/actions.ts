@@ -52,7 +52,7 @@ export async function getActiveStores(): Promise<ActiveStore[]> {
           address: store.address,
           category_names: store.categories 
             ? (Array.isArray(store.categories) 
-                ? store.categories.map((c: any) => c.name) 
+                ? (store.categories as unknown as { name: string }[]).map((c) => c.name) 
                 : [store.categories.name])
             : [],
           owner_name: ownerName,

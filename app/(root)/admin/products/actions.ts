@@ -77,12 +77,12 @@ export async function getProducts(filters?: ProductFilters): Promise<{ data: Pro
     }
 
     return {
-        data: (data as any[]).map(item => ({
+        data: (data as Record<string, unknown>[]).map(item => ({
             ...item,
             category_id: item.category_id,
             store_id: item.store_id,
             category: item.category
-        })) as Product[],
+        })) as unknown as Product[],
         total: count || 0,
     };
 }
@@ -119,14 +119,15 @@ export async function createProduct(product: Omit<Product, "id" | "created_at" |
     }
 
     revalidatePath("/admin/products");
-    return data as any as Product;
+    return data as unknown as Product;
 }
 
 export async function updateProduct(id: string, updates: Partial<Product>) {
     const supabase = await createClient();
     
     // Updates should exclude joined fields and non-db fields
-    const { category, ...cleanUpdates } = updates;
+    const cleanUpdates = { ...updates } as Record<string, unknown>;
+    delete cleanUpdates.category;
     const dbUpdates = {
         ...cleanUpdates,
         updated_at: new Date().toISOString(),
@@ -145,7 +146,7 @@ export async function updateProduct(id: string, updates: Partial<Product>) {
     }
 
     revalidatePath("/admin/products");
-    return data as any as Product;
+    return data as unknown as Product;
 }
 
 export async function deleteProduct(id: string) {

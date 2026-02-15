@@ -39,16 +39,6 @@ export function PaymentHistory() {
         limit: pageSize,
     });
 
-    const getStatusVariant = (status: PaymentStatus) => {
-        switch (status) {
-            case 'completed': return 'default'; // Or success-like color
-            case 'pending': return 'secondary';
-            case 'failed': return 'destructive';
-            case 'refunded': return 'outline';
-            default: return 'outline';
-        }
-    }
-
     // Custom badge to handle success color if needed, or just standard badges
     const StatusBadge = ({ status }: { status: PaymentStatus }) => {
         let className = "";

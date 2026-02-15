@@ -73,7 +73,7 @@ export function StoreSettingsForm({ initialData }: { initialData: StoreSettingsV
     const [isPending, setIsPending] = useState(false);
 
     const form = useForm<StoreSettingsValues>({
-        resolver: zodResolver(storeSettingsSchema) as any,
+        resolver: zodResolver(storeSettingsSchema) as any, // eslint-disable-line @typescript-eslint/no-explicit-any
         defaultValues: {
             name: initialData?.name || "",
             // Provide default if null?
@@ -105,7 +105,7 @@ export function StoreSettingsForm({ initialData }: { initialData: StoreSettingsV
             } else {
                 toast.error(result.message);
             }
-        } catch (error) {
+        } catch {
             toast.error("An unexpected error occurred");
         } finally {
             setIsPending(false);

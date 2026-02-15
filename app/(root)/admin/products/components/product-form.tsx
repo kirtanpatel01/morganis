@@ -47,7 +47,7 @@ export function ProductForm({ initialData, onSuccess, taxRate }: ProductFormProp
     const { mutate: updateProduct, isPending: isUpdating } = useUpdateProduct();
 
     const form = useForm<ProductFormValues>({
-        resolver: zodResolver(productSchema) as any, // Cast to any to resolve strictly typed resolver mismatch with default values
+        resolver: zodResolver(productSchema) as any, // eslint-disable-line @typescript-eslint/no-explicit-any
         defaultValues: {
             name: initialData?.name || "",
             description: initialData?.description || "",

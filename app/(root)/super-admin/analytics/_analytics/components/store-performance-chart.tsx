@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, TooltipProps } from "recharts"
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell } from "recharts"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { StorePerformance } from "../types"
 
@@ -9,7 +9,7 @@ interface StorePerformanceChartProps {
     data: StorePerformance[]
 }
 
-const CustomTooltip = ({ active, payload }: TooltipProps<number, string>) => {
+const CustomTooltip = ({ active, payload }: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
     if (active && payload && payload.length) {
         const data = payload[0].payload as StorePerformance
         return (

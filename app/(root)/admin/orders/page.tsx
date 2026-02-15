@@ -1,6 +1,5 @@
 import { getOrders } from "./actions"
 import { OrdersClient } from "./components/orders-client"
-import { Separator } from "@/components/ui/separator"
 
 export default async function OrdersPage() {
   const { orders, error } = await getOrders()

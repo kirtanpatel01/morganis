@@ -1,7 +1,7 @@
 "use server"
 
-import { FAKE_ORDERS, FAKE_STATS, FAKE_STORES } from "./constants"
-import type { DashboardStats, Order, Store } from "./types"
+import { FAKE_STATS, FAKE_STORES } from "./constants"
+import type { DashboardStats, Store } from "./types"
 
 // Simulate API delay
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))

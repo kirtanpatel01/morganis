@@ -41,7 +41,7 @@ export function CategoryManager({ initialData, storeStatus }: { initialData: Cat
                 toast.success("Category added");
                 setNewVal("");
             },
-            onError: (err) => {
+            onError: () => {
                 toast.error("Failed to add category");
             }
         });
@@ -52,7 +52,7 @@ export function CategoryManager({ initialData, storeStatus }: { initialData: Cat
             onSuccess: () => {
                 toast.success("Category deleted");
             },
-            onError: (err) => {
+            onError: () => {
                 toast.error("Failed to delete category");
             }
         });

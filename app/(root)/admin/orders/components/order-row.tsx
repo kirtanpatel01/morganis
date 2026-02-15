@@ -3,15 +3,7 @@
 import { TableCell, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { MoreHorizontal, Ban, CheckCircle, CreditCard, Eye, XCircle } from "lucide-react"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+import { CheckCircle, Eye, XCircle } from "lucide-react"
 import { useState } from "react"
 import { updatePaymentStatus } from "../actions"
 import { useUpdateOrder } from "../hooks/use-orders"
@@ -46,7 +38,7 @@ export function OrderRow({ order, showActions = true, showStoreInfo = false, var
             onSuccess: () => {
                 toast.success(`Order marked as ${status}`)
             },
-            onError: (error: any) => {
+            onError: (error: { message?: string }) => {
                 toast.error(error.message || "Failed to update status")
             }
         })
@@ -64,7 +56,7 @@ export function OrderRow({ order, showActions = true, showStoreInfo = false, var
             } else {
                 toast.error(result.error || "Failed to update payment")
             }
-        } catch (error) {
+        } catch {
             toast.error("An error occurred")
         } finally {
             setIsUpdatingPayment(false)

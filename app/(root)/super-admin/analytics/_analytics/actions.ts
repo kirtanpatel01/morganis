@@ -4,18 +4,20 @@ import { ANALYTICS_SUMMARY, REVENUE_TREND_DATA, STORE_PERFORMANCE, CATEGORY_DIST
 import { AnalyticsSummary, RevenueDataPoint, StorePerformance, CategoryDistribution, StatusBreakdown, TimeRange } from "./types";
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
-export async function getAnalyticsSummary(timeRange: TimeRange): Promise<AnalyticsSummary> {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export async function getAnalyticsSummary(_: TimeRange): Promise<AnalyticsSummary> {
   await delay(300);
   return ANALYTICS_SUMMARY;
 }
 
-export async function getRevenueTrends(timeRange: TimeRange): Promise<RevenueDataPoint[]> {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export async function getRevenueTrends(_: TimeRange): Promise<RevenueDataPoint[]> {
   await delay(500);
   return REVENUE_TREND_DATA;
 }
 
-export async function getStorePerformance(timeRange: TimeRange): Promise<StorePerformance[]> {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export async function getStorePerformance(_: TimeRange): Promise<StorePerformance[]> {
   await delay(400);
   return STORE_PERFORMANCE;
 }

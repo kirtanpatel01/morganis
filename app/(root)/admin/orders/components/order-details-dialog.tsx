@@ -4,7 +4,6 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
@@ -65,7 +64,7 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
                 <div className="space-y-3">
                     <h4 className="font-medium text-sm">Items ({order.order_items.length})</h4>
                     <div className="space-y-2">
-                        {order.order_items.map((item: any) => (
+                        {order.order_items.map((item) => (
                             <div key={item.id} className="flex justify-between text-sm">
                                 <div className="flex gap-2">
                                     <span className="font-medium w-8 text-center bg-muted rounded-sm">{item.quantity}x</span>

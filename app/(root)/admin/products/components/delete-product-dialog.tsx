@@ -48,7 +48,7 @@ export function DeleteProductDialog({
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
             This action cannot be undone. This will permanently delete the
-            product "{product?.name}" and remove it from our servers.
+            product &quot;{product?.name}&quot; and remove it from our servers.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

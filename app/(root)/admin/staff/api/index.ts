@@ -1,4 +1,4 @@
-import { Staff, StaffFilters, StaffRole } from "../types";
+import { Staff, StaffFilters } from "../types";
 
 let MOCK_STAFF: Staff[] = [
   {

@@ -3,7 +3,6 @@
 import { createClient } from "@/lib/supabase/server"
 import { supabaseAdminAuth } from "@/lib/supabase/auth-admin"
 import { CartItem } from "@/components/pos/cart-store"
-import { redirect } from "next/navigation"
 
 interface CreateOrderParams {
   customer: {
@@ -89,8 +88,8 @@ export async function createOrder(params: CreateOrderParams) {
     }
 
     return { success: true, orderId: order.id }
-  } catch (error) {
-    console.error("Unexpected error in createOrder:", error)
+  } catch (_error) {
+    console.error("Unexpected error in createOrder:", _error)
     return { success: false, error: "An unexpected error occurred" }
   }
 }
@@ -114,14 +113,13 @@ export async function getOrder(orderId: string) {
     }
 
     return order
-  } catch (error) {
-    console.error("Unexpected error in getOrder:", error)
+  } catch (_error) {
+    console.error("Unexpected error in getOrder:", _error)
     return null
   }
 }
 
 export async function simulatePayment(orderId: string) {
-    const supabase = await createClient()
 
     // 1. Set to processing using Admin Client (Bypass RLS because guests can't normally update)
     const { data, error: updateError } = await supabaseAdminAuth

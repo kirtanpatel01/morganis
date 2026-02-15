@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Store, MapPin, User, ShoppingBag } from "lucide-react";
+import { MapPin } from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";

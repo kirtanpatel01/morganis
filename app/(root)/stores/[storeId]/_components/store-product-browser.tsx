@@ -5,16 +5,17 @@ import Link from "next/link"
 import { PosSidebar } from "@/components/pos/pos-sidebar"
 import { ProductCard } from "@/components/pos/product-card"
 import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
 import { IconSearch, IconSortAscending, IconAdjustmentsHorizontal, IconArrowLeft } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { useStoreProducts } from "@/lib/hooks/use-store-products"
+import { Product } from "@/components/pos/product-data"
 
 interface StoreProductBrowserProps {
     storeId: string;
-    storeDetails: any; // Can refine type
-    initialProducts: any[];
+    storeDetails: { name?: string; address?: string } | null;
+    initialProducts: Product[];
     initialCategories: string[];
 }
 
@@ -53,7 +54,7 @@ export function StoreProductBrowser({ storeId, storeDetails, initialProducts, in
         setIsNew(false)
     }
 
-    const filteredProducts = (products || []).filter((product: any) => {
+    const filteredProducts = (products || []).filter((product) => {
         const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                             product.category.toLowerCase().includes(searchQuery.toLowerCase());
         
@@ -64,7 +65,7 @@ export function StoreProductBrowser({ storeId, storeDetails, initialProducts, in
         const matchesNew = !isNew || product.isNew
 
         return matchesSearch && matchesCategory && matchesPrice && matchesStock && matchesNew
-    }).sort((a: any, b: any) => {
+    }).sort((a, b) => {
         if (sortOption === "price-asc") return a.price - b.price
         if (sortOption === "price-desc") return b.price - a.price
         if (sortOption === "rating") return b.rating - a.rating
@@ -75,9 +76,9 @@ export function StoreProductBrowser({ storeId, storeDetails, initialProducts, in
         return 0
     })
 
-    const SidebarWithProps = (props: { className?: string }) => (
+    const sidebarContent = (className?: string) => (
         <PosSidebar 
-            className={props.className}
+            className={className}
             selectedCategories={selectedCategories}
             onCategoryChange={handleCategoryChange}
             priceRange={[priceRange[0], priceRange[1]]}
@@ -104,7 +105,7 @@ export function StoreProductBrowser({ storeId, storeDetails, initialProducts, in
                     <h2 className="font-semibold text-lg">{storeDetails?.name || "Store"} Details</h2>
                     <p className="text-xs text-muted-foreground">{storeDetails?.address}</p>
                 </div>
-                <SidebarWithProps className="h-full border-r-0" />
+                {sidebarContent("h-full border-r-0")}
              </aside>
              <main className="relative flex flex-1 flex-col h-full overflow-hidden">
                 <div className="flex flex-col md:flex-row items-center justify-between px-4 py-3 bg-background border-b gap-3 md:gap-4">
@@ -134,7 +135,7 @@ export function StoreProductBrowser({ storeId, storeDetails, initialProducts, in
                                 </Button>
                             </SheetTrigger>
                             <SheetContent side="left" className="w-[300px] sm:w-[400px] pr-0">
-                                <SidebarWithProps />
+                                {sidebarContent()}
                             </SheetContent>
                         </Sheet>
                         <Select value={sortOption} onValueChange={setSortOption}>
@@ -158,7 +159,7 @@ export function StoreProductBrowser({ storeId, storeDetails, initialProducts, in
                 <div className="flex-1 overflow-y-auto">
                     <div className="p-4 lg:p-6">
                         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-                            {filteredProducts.map((product: any) => (
+                            {filteredProducts.map((product) => (
                                 <ProductCard key={product.id} product={product} />
                             ))}
                         </div>
@@ -169,7 +170,7 @@ export function StoreProductBrowser({ storeId, storeDetails, initialProducts, in
                                 </div>
                                 <h3 className="text-lg font-semibold">No products found</h3>
                                 <p className="text-muted-foreground mt-1 max-w-xs mx-auto">
-                                    We couldn't find any products in this store matching your search.
+                                    We couldn&apos;t find any products in this store matching your search.
                                 </p>
                                 <Button variant="link" onClick={handleReset} className="mt-4">
                                     Clear all filters

@@ -31,7 +31,6 @@ import { useProducts, useCategories } from "../hooks/use-products";
 import { Product, Category } from "../types";
 
 interface ProductTableProps {
-    initialData: { data: Product[]; total: number };
     initialCategories: Category[];
     onEdit?: (product: Product) => void;
     onDelete?: (product: Product) => void;
@@ -39,15 +38,12 @@ interface ProductTableProps {
     storeStatus?: string;
 }
 
-export function ProductTable({ initialData, initialCategories, onEdit, onDelete, action, storeStatus }: ProductTableProps) {
+export function ProductTable({ initialCategories, onEdit, onDelete, action, storeStatus }: ProductTableProps) {
     const [search, setSearch] = useState("");
     const [categoryFilter, setCategoryFilter] = useState("all");
     const [page, setPage] = useState(1);
     const [pageSize] = useState(10);
     const isActive = storeStatus === 'active';
-
-    // Initial data is only valid for default filters
-    const isDefaultFilters = search === "" && categoryFilter === "all" && page === 1;
 
     const { data: productsData, isLoading } = useProducts({
         filters: {

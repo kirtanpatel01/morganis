@@ -64,7 +64,7 @@ export async function getProducts(filters?: ProductFilters): Promise<Product[]> 
         return []
     }
 
-    return (data || []).map((p: Record<string, any>) => ({
+    return (data || []).map((p) => ({
         id: p.id,
         name: p.name,
         description: p.description || "",
