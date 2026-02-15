@@ -242,7 +242,7 @@ export function OrderStatus({ initialOrder }: OrderStatusProps) {
                         <div className="bg-white p-4 rounded-xl shadow-inner border">
                             <QRCodeCanvas
                                 id="order-qr"
-                                value={`${typeof window !== 'undefined' ? window.location.origin : ''}/admin/orders?search=${order.id}`}
+                                value={`${process.env.NEXT_PUBLIC_APP_URL}/admin/orders?search=${order.id}`}
                                 size={220}
                                 level="M"
                                 includeMargin={true}
